@@ -1,0 +1,13 @@
+package ruleevaluator.token
+
+enum TokenType {
+  case EXPRESSION, CONDITION, WHITESPACE, EQUAL, NOT_EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, CSV_FIELD, STRING, DOUBLE, AND, OR
+}
+
+object TokenType {
+  val LOGICAL_OPERATORS: Set[TokenType] = Set(OR, AND)
+
+  val COMPARISON_OPERATORS: Set[TokenType] = Set(EQUAL, GREATER, GREATER_EQUAL, LESS, LESS_EQUAL, NOT_EQUAL)
+
+  val ARGUMENTS: Set[TokenType] = Set(CSV_FIELD, STRING, DOUBLE)
+}

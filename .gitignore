@@ -1,0 +1,23 @@
+# Scala
+target/
+lib_managed/
+.project
+.classpath
+.idea
+.iml
+logs/
+*.log
+
+# sbt
+dist/
+*.zip
+*.tar.gz
+*.tgz
+
+# Maven
+log/
+target/
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
