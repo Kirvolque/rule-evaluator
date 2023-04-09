@@ -1,4 +1,4 @@
-# rule-evaluator
+# Rule Evaluator
 
 Rule Evaluator is a command-line application written in Scala 3 that allows you to evaluate a set of conditions on a CSV file
 Rule Evaluator
