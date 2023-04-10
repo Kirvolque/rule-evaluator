@@ -5,7 +5,7 @@ ThisBuild / scalaVersion := "3.2.2"
 lazy val root = (project in file("."))
   .settings(
     name := "RuleEvaluator",
-    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % Test
+    libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.15" % Test
   )
 
 
