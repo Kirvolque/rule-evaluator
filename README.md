@@ -6,7 +6,7 @@ This application is currently a work in progress.
 
 Rule Evaluator is a Scala 3 application that allows you to evaluate rules on a CSV file.
 
-# Usage
+## Usage
 To use Rule Evaluator, you must have a CSV file with your data and a set of conditions that you want to evaluate for each row of data. Conditions should be in the format of [columnName] operator value, where operator can be any of the following: `=`, `!=`, `<`, `>`, `<=`, `>=`.
 
 Example conditions:
@@ -17,7 +17,7 @@ Example conditions:
 
 The application will then evaluate each row in the CSV file against the specified conditions and output the result for each row. If a row fails the conditions, the application will also output a list of reasons why the conditions failed.
 
-# Technologies Used
+## Technologies Used
 
 This project uses the following technologies:
 
@@ -26,7 +26,7 @@ This project uses the following technologies:
 - [ScalaTest](https://www.scalatest.org/) - The testing framework used to write and run tests.
 - [Cats](https://typelevel.org/cats/) - The library used to provide type classes such as `Monoid` for functional programming in Scala. 
 
-# Development
+## Development
 To build and test the application, you can use the following commands:
 
 ```
