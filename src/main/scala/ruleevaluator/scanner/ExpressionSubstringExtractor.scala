@@ -58,7 +58,7 @@ class ExpressionSubstringExtractor(val source: String, val line: Int) {
         true
       case Success(top) =>
         punctuationMarks.push(top)
-        throw UnexpectedCharacterException(s"Unexpected character '$character' in line $line: $source")
+        true
       case Failure(_) =>
         throw UnexpectedCharacterException(s"Unexpected character '$character' in line $line: $source")
     }
