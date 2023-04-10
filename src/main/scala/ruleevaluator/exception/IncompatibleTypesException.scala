@@ -1,7 +1,7 @@
 package ruleevaluator.exception
 
-import ruleevaluator.token.Token
+import ruleevaluator.token.{Argument, ComparisonOperator, LogicalOperator}
 
-class IncompatibleTypesException(operator: Token[Any], argument1: Token[Any], argument2: Token[Any]) extends RuntimeException(
-  s"Incompatible types: ${operator.tokenType} ($argument1, $argument2)"
+class IncompatibleTypesException(operator: ComparisonOperator, argument1: Argument, argument2: Argument) extends RuntimeException(
+  s"Incompatible types: ${operator} ($argument1, $argument2)"
 )

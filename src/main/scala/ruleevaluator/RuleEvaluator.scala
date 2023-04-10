@@ -42,7 +42,7 @@ object RuleEvaluator {
       .fold(Result.PASS)((a, b) => a combineWithAnd b)
   }
 
-  private def parseAndCombineTokens(line: RuleLine, csv: Csv): List[Token[Any]] = {
+  private def parseAndCombineTokens(line: RuleLine, csv: Csv): List[Token] = {
     val tokens = new Scanner(line, csv).parseTokens()
     new TokenCombiner(tokens, line.lineNumber).combineTokensToConditions()
   }

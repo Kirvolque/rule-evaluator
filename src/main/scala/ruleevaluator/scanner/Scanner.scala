@@ -2,14 +2,14 @@ package ruleevaluator.scanner
 
 import ruleevaluator.rulesfile.RuleLine
 import ruleevaluator.exception.{CharacterNotFoundException, UnexpectedCharacterException}
-import ruleevaluator.expression.Expression
-import ruleevaluator.csv.{Csv, CsvField}
-import ruleevaluator.token.{Token, TokenType}
+import ruleevaluator.csv.Csv
+import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
 import ruleevaluator.scanner.ExpressionSubstringExtractor
+import ruleevaluator.token.BasicToken.Whitespace
 
 class Scanner(val source: String,
               val csv: Csv,
-              val line: Int) extends Iterator[Token[Any]] {
+              val line: Int) extends Iterator[Token] {
 
   private var current: Int = 0
 
@@ -17,38 +17,38 @@ class Scanner(val source: String,
   private val AND: String = "and"
   private val NOT_EQUAL: String = "!="
 
-  private val tokenLexemeMap: Map[TokenType, String] = Map(
-    TokenType.AND -> AND,
-    TokenType.OR -> OR,
-    TokenType.NOT_EQUAL -> NOT_EQUAL
+  private val tokenLexemeMap: Map[Token, String] = Map(
+    LogicalOperator.And -> AND,
+    LogicalOperator.Or -> OR,
+    ComparisonOperator.NotEqual -> NOT_EQUAL
   )
   def this(conditionLine: RuleLine, csv: Csv) =
     this(conditionLine.lineString, csv, conditionLine.lineNumber)
 
   override def hasNext: Boolean = current < source.length()
 
-  override def next(): Token[Any] = {
+  override def next(): Token = {
     val c = advance()
     c match {
-      case '(' => parseExpression()
-      case '"' => new Token(TokenType.STRING, Some(readUntilNext('"')))
-      case '[' => new Token(TokenType.CSV_FIELD, Some(getcsvFieldValue))
-      case '=' => new Token(TokenType.EQUAL)
-      case '<' => new Token(if (isFollowedBy('=')) TokenType.LESS_EQUAL else TokenType.LESS)
-      case '>' => new Token(if (isFollowedBy('=')) TokenType.GREATER_EQUAL else TokenType.GREATER)
+      case '(' => parseExpression
+      case '"' => Argument.StringArg(readUntilNext('"'))
+      case '[' => getCsvFieldValue
+      case '=' => ComparisonOperator.Equal
+      case '<' => if (isFollowedBy('=')) ComparisonOperator.LessEqual else ComparisonOperator.Less
+      case '>' => if (isFollowedBy('=')) ComparisonOperator.GreaterEqual else ComparisonOperator.Greater
       case ch: Char if isDigit(ch) => parseNumber()
-      case _ if isLexeme(NOT_EQUAL) => read(TokenType.NOT_EQUAL)
-      case _ if isLexeme(OR) => read(TokenType.OR)
-      case _ if isLexeme(AND) => read(TokenType.AND)
-      case ' ' => new Token(TokenType.WHITESPACE)
+      case _ if isLexeme(NOT_EQUAL) => read(ComparisonOperator.NotEqual)
+      case _ if isLexeme(OR) => read(LogicalOperator.Or)
+      case _ if isLexeme(AND) => read(LogicalOperator.And)
+      case ' ' => BasicToken.Whitespace
       case _ => throw new UnexpectedCharacterException(
         s"Unexpected character '$c' in line $line: $source."
       )
     }
   }
 
-  def parseTokens(): List[Token[Any]] = {
-    this.iterator.filter(!_.hasType(TokenType.WHITESPACE)).toList
+  def parseTokens(): List[Token] = {
+    this.filterNot(token => token.isInstanceOf[BasicToken.Whitespace.type]).toList
   }
 
   private def advance(): Char = {
@@ -65,22 +65,22 @@ class Scanner(val source: String,
     }
   }
 
-  private def read(tokenType: TokenType): Token[Any] = {
-    current += tokenLexemeMap.get(tokenType).size + 1
-    new Token(tokenType)
+  private def read(token: Token): Token = {
+    current += tokenLexemeMap.get(token).size + 1
+    token
   }
 
-  private def parseExpression(): Token[Any] = {
+  private def parseExpression: BasicToken.Expression = {
     val expressionReader = ExpressionSubstringExtractor(source, line)
     val expressionString = expressionReader.extractExpressionStringFrom(current - 1)
     current += expressionString.length + 1
     val scanner = new Scanner(expressionString, csv, line)
-    new Token(TokenType.EXPRESSION, Some(Expression(scanner.parseTokens())))
+    BasicToken.Expression(scanner.parseTokens())
   }
 
-  private def getcsvFieldValue: CsvField = {
+  private def getCsvFieldValue: Argument.CsvField = {
     val name = readUntilNext(']')
-    new CsvField(name, csv.getField(name))
+    Argument.CsvField(name, csv.getField(name))
   }
 
   private def readUntilNext(character: Char): String = {
@@ -107,14 +107,14 @@ class Scanner(val source: String,
   private def isDigit(character: Char): Boolean =
     Character.isDigit(character) || character == '-'
 
-  private def parseNumber(): Token[Any] = {
+  private def parseNumber(): Argument.DoubleArg = {
     val lastIndex = (current until source.length)
       .filterNot(i => isDigit(source.charAt(i)) || source.charAt(i) == '.')
       .headOption
       .getOrElse(source.length)
     val number = source.substring(current - 1, lastIndex)
     current = lastIndex + 1
-    Token(TokenType.DOUBLE, Some(number.toDouble))
+    Argument.DoubleArg(number.toDouble)
   }
 
 }

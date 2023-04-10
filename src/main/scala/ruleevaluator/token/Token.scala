@@ -1,20 +1,28 @@
 package ruleevaluator.token
 
-// TODO: Add type restrictions. Get rid of Any.
-class Token[T](val tokenType: TokenType, val value: Option[T] = None) {
+import ruleevaluator.rule.Rule
 
-  def hasType(expected: TokenType): Boolean = tokenType == expected
+sealed trait Token
 
-  def isArgument: Boolean = TokenType.ARGUMENTS.contains(tokenType)
+enum BasicToken extends Token:
+  case Expression(val tokens: List[Token])
+  case Condition(val rule: Rule)
+  case Whitespace
 
-  def isLogicalOperator: Boolean = TokenType.LOGICAL_OPERATORS.contains(tokenType)
+enum LogicalOperator extends Token:
+  case And
+  case Or
 
-  def isComparisonOperator: Boolean = TokenType.COMPARISON_OPERATORS.contains(tokenType)
+enum ComparisonOperator extends Token:
+  case Equal
+  case NotEqual
+  case Greater
+  case GreaterEqual
+  case Less
+  case LessEqual
 
-  def isExpression: Boolean = hasType(TokenType.EXPRESSION)
+enum Argument extends Token:
+  case CsvField(val name: String, val value: String | Double)
+  case StringArg(val value: String)
+  case DoubleArg(val value: Double)
 
-  override def toString: String = value match {
-    case Some(v) => s"$tokenType: $v"
-    case None => tokenType.toString
-  }
-}

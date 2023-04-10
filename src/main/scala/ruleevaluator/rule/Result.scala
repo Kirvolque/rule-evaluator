@@ -1,7 +1,6 @@
 package ruleevaluator.rule
 
-import ruleevaluator.csv.CsvField
-import ruleevaluator.token.{Token, TokenType}
+import ruleevaluator.token.{Argument, Token}
 
 class Result(val successful: Boolean, val failReasons: Set[String]) {
 
@@ -26,11 +25,11 @@ object Result {
   val PASS: Result = Result(true, Set.empty)
   val FAIL: Result = Result(false, Set.empty)
 
-  def fail(tokens: Iterable[Token[Any]]): Result = {
-    val fields = tokens.filter(_.hasType(TokenType.CSV_FIELD))
-      .flatMap(_.value)
-      .map(_.asInstanceOf[CsvField].name)
+  def fail(tokens: Iterable[Token]): Result = {
+    val values = tokens.filter(token => token.isInstanceOf[Argument.CsvField]) // TODO refactor
+      .map(_.asInstanceOf[Argument.CsvField])
+      .map(_.name)
       .toSet
-    Result(false, fields)
+    Result(false, values)
   }
 }

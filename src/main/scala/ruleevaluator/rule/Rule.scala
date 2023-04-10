@@ -1,44 +1,40 @@
 package ruleevaluator.rule
 
 import ruleevaluator.exception.{IncompatibleTypesException, WrongTypeException}
-import ruleevaluator.token.{Token, TokenType}
-import ruleevaluator.csv.{Csv, CsvField}
-import ruleevaluator.rule.{Result, Computable}
+import ruleevaluator.token.{Argument, ComparisonOperator, Token}
+import ruleevaluator.csv.Csv
+import ruleevaluator.exception
+import ruleevaluator.rule.{Computable, Result}
 
-class Rule(operator: Token[Any], argument1: Token[Any], argument2: Token[Any]) extends Computable {
-  override def compute(): Result =
-    operator.tokenType match {
-      case TokenType.LESS => check((arg1, arg2) => arg1 < arg2)
-      case TokenType.LESS_EQUAL => check((arg1, arg2) => arg1 <= arg2)
-      case TokenType.GREATER => check((arg1, arg2) => arg1 > arg2)
-      case TokenType.GREATER_EQUAL => check((arg1, arg2) => arg1 >= arg2)
-      case TokenType.NOT_EQUAL => notEqual()
-      case TokenType.EQUAL => equal()
-      case _ => throw new MatchError(operator.tokenType)
+class Rule(val operator: ComparisonOperator, val argument1: Argument, val argument2: Argument) extends Computable {
+  override def compute(): Result = {
+    operator match {
+      case ComparisonOperator.Less => check((arg1, arg2) => arg1 < arg2)
+      case ComparisonOperator.LessEqual => check((arg1, arg2) => arg1 <= arg2)
+      case ComparisonOperator.Greater => check((arg1, arg2) => arg1 > arg2)
+      case ComparisonOperator.GreaterEqual => check((arg1, arg2) => arg1 >= arg2)
+      case ComparisonOperator.NotEqual => notEqual()
+      case ComparisonOperator.Equal => equal()
     }
+  }
 
   private def notEqual(): Result = negateResult(equal())
 
-  private def equal(): Result = {
-    if (oneOfArgumentsHasType(TokenType.STRING)) {
-      stringEquals()
-    } else if (oneOfArgumentsHasType(TokenType.DOUBLE)) {
-      check((a, b) => a == b)
-    } else if (bothArgumentsHaveType(TokenType.CSV_FIELD)) {
-      convertFieldValueToDouble(argument1) match {
+  private def equal(): Result = (argument1, argument2) match
+    case (a1: Argument.StringArg, _) => stringEquals()
+    case (_, a2: Argument.StringArg) => stringEquals()
+    case (a1: Argument.DoubleArg, _) => check((a, b) => a == b)
+    case (_, a2: Argument.DoubleArg) => check((a, b) => a == b)
+    case (a1: Argument.CsvField, a2: Argument.CsvField) => {
+      convertFieldValueToDouble(a1) match
         case Some(_) => check((a, b) => a == b)
         case None => stringEquals()
-      }
-    } else throw IncompatibleTypesException(operator, argument1, argument2)
-  }
+    }
+    case _ => throw IncompatibleTypesException(operator, argument1, argument2)
 
   private def negateResult(result: Result): Result = if (result.successful) Result.fail(Seq(argument1, argument2)) else Result.PASS
 
   private def stringEquals(): Result = if (getString(argument1) == getString(argument2)) Result.PASS else Result.fail(Seq(argument1, argument2))
-
-  private def oneOfArgumentsHasType(tokenType: TokenType): Boolean = argument1.hasType(tokenType) || argument2.hasType(tokenType)
-
-  private def bothArgumentsHaveType(tokenType: TokenType): Boolean = argument1.hasType(tokenType) && argument2.hasType(tokenType)
 
   private def check(predicate: (Double, Double) => Boolean): Result = {
     val arg1 = getDouble(argument1)
@@ -51,30 +47,25 @@ class Rule(operator: Token[Any], argument1: Token[Any], argument2: Token[Any]) e
     if (predicate(arg1, arg2)) Result.PASS else Result.fail(Seq(argument1, argument2))
   }
 
-  private def getDouble(argument: Token[Any]): Option[Double] = argument.tokenType match {
-    case TokenType.CSV_FIELD => convertFieldValueToDouble(argument)
-    case TokenType.DOUBLE => Some(argument.value.get.asInstanceOf[Double]) // TODO remove get
+  private def getDouble(argument: Argument): Option[Double] = argument match {
+    case a: Argument.CsvField => convertFieldValueToDouble(a)
+    case a: Argument.DoubleArg => Some(a.value)
     case _ => throw WrongTypeException(s"Double expected number but found ${argument.toString}.")
   }
 
-  private def getString(argument: Token[Any]): String = argument.tokenType match {
-    case TokenType.CSV_FIELD => getFieldValue(argument)
-    case TokenType.STRING => argument.value.get.asInstanceOf[String] // TODO remove get
+  private def getString(argument: Argument): String = argument match {
+    case f: Argument.CsvField => f.value.toString
+    case s: Argument.StringArg => s.value
     case _ => throw WrongTypeException(s"String expected number but found ${argument.toString}.")
   }
 
-  private def convertFieldValueToDouble(argument: Token[Any]): Option[Double] = {
-    val field = argument.value.get.asInstanceOf[CsvField] // TODO remove get
+  private def convertFieldValueToDouble(field: Argument.CsvField): Option[Double] = {
     try {
-      Some(field.value.toDouble)
+      Some(field.value.toString.toDouble)
     } catch {
       case _: NumberFormatException => None
     }
   }
 
-  private def getFieldValue(argument: Token[Any]): String = {
-    val csvField = argument.value.get.asInstanceOf[CsvField] // TODO remove get
-    csvField.value
-  }
 }
 

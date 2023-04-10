@@ -1,44 +1,34 @@
 package ruleevaluator.calculator
 
 import ruleevaluator.rule.{Computable, Result}
-import ruleevaluator.expression.Expression
-import ruleevaluator.token.{Token, TokenType}
+import ruleevaluator.token.Argument.CsvField
+import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
 
 import scala.annotation.tailrec
 
 object Calculator {
-  def calculate(tokens: List[Token[Any]]): Result =
-    splitBy[Token[Any]](tokens, token => token.hasType(TokenType.OR))
+  def calculate(tokens: List[Token]): Result =
+    splitBy[Token](tokens, token => token.isInstanceOf[LogicalOperator.Or.type])
       .map(list =>
-        splitBy(list, token => token.hasType(TokenType.AND))
+        splitBy(list, token => token.isInstanceOf[LogicalOperator.And.type])
           .flatten
-          .map(convertToCalculable)
-          .map(calculable => calculable.asInstanceOf[Computable].compute())
+          .flatMap(convertToComputable)
+          .map(_.compute())
           .fold(Result.PASS)((a, b) => a combineWithAnd b)
       )
       .reduce(_.combineWithOr(_))
 
-  private def convertToCalculable(token: Token[Any]): Computable =
-    if (token.hasType(TokenType.EXPRESSION)) expressionToCalculable(token)
-    else token.value.get.asInstanceOf[Computable] // TODO remove get
-
-  private def expressionToCalculable(token: Token[Any]): Computable = {
-    val expression = token.value.get.asInstanceOf[Expression] // TODO remove get
-    () => Calculator.calculate(expression.tokens)
+  private def convertToComputable(token: Token): Option[Computable] = {
+    token match
+      case e: BasicToken.Expression => Some(() => Calculator.calculate(e.tokens))
+      case c: BasicToken.Condition  => Some(() => c.rule.compute())
+      case _ => None
   }
 
-  /** Splits the given list into sub-lists based on the given predicate.
-   * The elements matching the predicate are used as borders, but not included in the resulting sub-lists.
-   *
-   * @param list      the list to split
-   * @param predicate the predicate to match against elements
-   * @tparam T the type of elements in the list
-   * @return a list of sub-lists
-   */
-  def splitBy[T](list: List[T], predicate: T => Boolean): List[List[T]] = {
+  private def splitBy[T](list: List[T], predicate: T => Boolean): List[List[T]] = {
     val indices = list.indices.filter(i => predicate(list(i)))
 
-    def splitListByIndices[T](list: List[T], indices: List[Int]): List[List[T]] = {
+    def splitListByIndices(list: List[T], indices: List[Int]): List[List[T]] = {
       @tailrec
       def loop(list: List[T], indices: List[Int], result: List[List[T]]): List[List[T]] = {
         indices match {

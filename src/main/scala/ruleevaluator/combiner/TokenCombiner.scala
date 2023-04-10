@@ -2,95 +2,88 @@ package ruleevaluator.combiner
 
 import ruleevaluator.rule.Rule
 import ruleevaluator.exception.{InvalidConditionException, MissingArgumentException}
-import ruleevaluator.expression.Expression
-import ruleevaluator.token.{Token, TokenType}
+import ruleevaluator.token.*
+import ruleevaluator.token.BasicToken.Expression
 
-class TokenCombiner(val tokens: List[Token[Any]], val line: Int) extends Iterator[Token[Any]] {
+class TokenCombiner(val tokens: List[Token], val line: Int) extends Iterator[Token] {
   private var current = 0
 
   override def hasNext(): Boolean = current < tokens.size
 
-  override def next(): Token[Any] =
+  override def next(): Token =
     current += 1
     tokens(current - 1)
 
-  // TODO rewrite using Validated
-  def combineTokensToConditions(): List[Token[Any]] =
+  def combineTokensToConditions(): List[Token] =
     ensureExpressionContainsMoreThanOneToken()
-    this.map(token =>
-      if token.isLogicalOperator then ensureArgumentsAreGiven(token)
-      else token
-    )
-      .map(token =>
-        if token.isArgument then validateOrderOfTokens(token)
-        else token
-      )
-      .map(token =>
-        if token.isComparisonOperator then createConditionToken()
-        else token
-      )
-      .map(token =>
-        if token.hasType(TokenType.EXPRESSION) then combineExpressionTokens(token)
-        else token
-      )
+    this.map {
+      case lo: LogicalOperator => ensureArgumentsAreGiven(lo)
+      case a: Argument => validateOrderOfTokens(a)
+      case _: ComparisonOperator => createConditionToken()
+      case e: Expression => simplify(e)
+      case token => token
+    }
       .toList
-      .filterNot(_.isArgument)
+      .filterNot(token => token.isInstanceOf[Argument])
 
-  private def createConditionToken(): Token[Any] =
-    val condition = Rule(
-      argument1 = getPreviousToken(),
-      operator = getCurrentToken(),
-      argument2 = getNextToken())
-    new Token(TokenType.CONDITION, Some(condition))
+  private def createConditionToken(): BasicToken.Condition =
+    val rule = Rule(
+      argument1 = getPreviousToken.asInstanceOf[Argument],
+      operator = getCurrentToken.asInstanceOf[ComparisonOperator],
+      argument2 = getNextToken.asInstanceOf[Argument])
+    BasicToken.Condition(rule)
 
-  private def combineExpressionTokens(token: Token[Any]): Token[Any] =
-    val expression = token.value.get.asInstanceOf[Expression] // TODO remove get
+  private def simplify(expression: BasicToken.Expression): BasicToken.Expression =
     val tokens = new TokenCombiner(expression.tokens, line).combineTokensToConditions()
-    new Token(TokenType.EXPRESSION, Some(Expression(tokens)))
+    BasicToken.Expression(tokens)
 
   private def ensureExpressionContainsMoreThanOneToken(): Unit =
-    if tokens.size == 1 && !tokens.head.isExpression then
+    if tokens.size == 1 && tokens.head.isInstanceOf[BasicToken.Expression.type] then
       throw InvalidConditionException(
         s"Invalid condition in line $line."
       )
 
-  private def validateOrderOfTokens(token: Token[Any]): Token[Any] =
+  private def validateOrderOfTokens(token: Token): Token = {
+    def isArgumentOrExpression(t: Token) =
+      t.isInstanceOf[Argument] || t.isInstanceOf[Expression]
+
     val orderIsInvalid =
-      getPrevious().exists(t => t.isArgument || t.isExpression) ||
-        getNext().exists(t => t.isArgument || t.isExpression)
+      getPreviousOpt.exists(isArgumentOrExpression) ||
+        getNextOpt.exists(isArgumentOrExpression)
     if orderIsInvalid then
       throw InvalidConditionException(
         s"Operator is missing in line $line."
       )
     else
       token
+  }
 
-  private def ensureArgumentsAreGiven(token: Token[Any]): Token[Any] =
-    getPreviousToken()
-    getNextToken()
+  private def ensureArgumentsAreGiven(token: Token): Token =
+    getPreviousToken
+    getNextToken
     token
 
-  private def getCurrentToken(): Token[Any] =
+  private def getCurrentToken: Token =
     tokens(current - 1)
 
-  private def getPreviousToken(): Token[Any] =
-    getPrevious().getOrElse(
+  private def getPreviousToken: Token =
+    getPreviousOpt.getOrElse(
       throw MissingArgumentException(
         s"1st argument is missing for operator: ${tokens(current)} in line: $line."
       )
     )
 
-  private def getNextToken(): Token[Any] =
-    getNext().getOrElse(
+  private def getNextToken: Token =
+    getNextOpt.getOrElse(
       throw MissingArgumentException(
         s"2nd argument is missing for operator: ${tokens(current - 1)} in line: $line."
       )
     )
 
-  private def getPrevious(): Option[Token[Any]] =
+  private def getPreviousOpt: Option[Token] =
     if current <= 1 then None else Some(tokens(current - 2))
 
-  private def getNext(): Option[Token[Any]] =
+  private def getNextOpt: Option[Token] =
     if !hasNext() then None else Some(tokens(current))
 
 }
