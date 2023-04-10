@@ -4,7 +4,7 @@ import cats.Monoid
 
 object ResultMonoid {
   implicit val andResultMonoid: Monoid[Result] = new Monoid[Result] {
-    def empty: Result = new Result(true, Set.empty)
+    def empty: Result = Result.PASS
 
     def combine(x: Result, y: Result): Result =
       val mergedFailReasons = x.failReasons.union(y.failReasons)
@@ -12,7 +12,7 @@ object ResultMonoid {
   }
 
   implicit val orResultMonoid: Monoid[Result] = new Monoid[Result] {
-    def empty: Result = new Result(false, Set.empty)
+    def empty: Result = Result.FAIL
 
     def combine(x: Result, y: Result): Result =
       val mergedResultIsSuccessful = x.successful || y.successful

@@ -42,7 +42,7 @@ object RuleEvaluator {
     conditions.lines
       .map(line => parseAndCombineTokens(line, parsedcsv))
       .map(Evaluator.evaluate)
-      .fold(Result.PASS)((a, b) => Monoid.combine(a, b)(andResultMonoid))
+      .reduce((a, b) => Monoid.combine(a, b)(andResultMonoid))
 
   private def parseAndCombineTokens(line: RuleLine, csv: Csv): List[Token] = {
     val tokens = new Scanner(line, csv).parseTokens()

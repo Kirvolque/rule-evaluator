@@ -16,7 +16,7 @@ object Evaluator {
           .flatten
           .flatMap(convertToComputable)
           .map(_.compute())
-          .fold(Result.PASS)((a, b) => Monoid.combine(a, b)(andResultMonoid))
+          .reduce((a, b) => Monoid.combine(a, b)(andResultMonoid))
       )
       .reduce((a, b) => Monoid.combine(a, b)(orResultMonoid))
 
