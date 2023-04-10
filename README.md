@@ -17,6 +17,15 @@ Example conditions:
 
 The application will then evaluate each row in the CSV file against the specified conditions and output the result for each row. If a row fails the conditions, the application will also output a list of reasons why the conditions failed.
 
+# Technologies Used
+
+This project uses the following technologies:
+
+- [Scala 3](https://docs.scala-lang.org/scala3/) - The programming language used to write the application.
+- [sbt](https://www.scala-sbt.org/) - The build tool used to manage dependencies and build the project.
+- [ScalaTest](https://www.scalatest.org/) - The testing framework used to write and run tests.
+- [Cats](https://typelevel.org/cats/) - The library used to provide type classes such as `Monoid` for functional programming in Scala. 
+
 # Development
 To build and test the application, you can use the following commands:
 
