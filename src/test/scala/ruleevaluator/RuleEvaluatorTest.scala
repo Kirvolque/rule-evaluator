@@ -14,7 +14,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       ("field2", "2"))
     val conditions = createConditions(
       "([field1] = \"1\")", "[field1] <= 1")
-    val result = RuleEvaluator.calculate(conditions, csv)
+    val result = RuleEvaluator.checkRules(conditions, csv)
     result.successful shouldBe true
   }
 
@@ -23,7 +23,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       ("field1", "1"),
       ("field2", "2"))
     val conditions = createConditions("[field1] = \"1\"", "[field2] > 2")
-    val result = RuleEvaluator.calculate(conditions, csv)
+    val result = RuleEvaluator.checkRules(conditions, csv)
     result.successful shouldBe false
     result.failReasons.size shouldBe 1
     result.failReasons should contain("field2")
@@ -35,7 +35,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       ("field2", "2"),
       ("field3", "bla"))
     val conditions = createConditions("[field1] = 1 OR [field2] = 2 AND [field3] != \"bla\"")
-    val result = RuleEvaluator.calculate(conditions, csv)
+    val result = RuleEvaluator.checkRules(conditions, csv)
     result.successful shouldBe true
   }
 
@@ -48,8 +48,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val condition1 = createConditions("([field1] = 1 OR [field2] = 3) AND [field3] = \"bla\"")
     val condition2 = createConditions("([field1] = 1 OR [field2] = 3) AND ([field3] = 2 OR [field3] = \"bla\")")
 
-    val result1 = RuleEvaluator.calculate(condition1, csv)
-    val result2 = RuleEvaluator.calculate(condition2, csv)
+    val result1 = RuleEvaluator.checkRules(condition1, csv)
+    val result2 = RuleEvaluator.checkRules(condition2, csv)
 
     result1.successful shouldBe true
     result2.successful shouldBe true
@@ -67,8 +67,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val condition2 = createConditions(
       "[field2] = 1 OR ([field2] = 2 AND ([field3] = 2 AND [field1] = 1))")
 
-    val result1 = RuleEvaluator.calculate(condition1, csv)
-    val result2 = RuleEvaluator.calculate(condition2, csv)
+    val result1 = RuleEvaluator.checkRules(condition1, csv)
+    val result2 = RuleEvaluator.checkRules(condition2, csv)
 
     result1.successful shouldBe true
     result2.successful shouldBe false
@@ -88,8 +88,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       "[field2] > 1",
       "[field3] = \"bla\"")
     val conditions2 = createConditions("[field1] = 1 ", "[field2] <= 1")
-    val successful = RuleEvaluator.calculate(conditions1, csv)
-    val unsuccessful = RuleEvaluator.calculate(conditions2, csv)
+    val successful = RuleEvaluator.checkRules(conditions1, csv)
+    val unsuccessful = RuleEvaluator.checkRules(conditions2, csv)
 
     successful.successful shouldBe true
     unsuccessful.successful shouldBe false
@@ -103,8 +103,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       ("field2", "1.0"))
     val condition1 = createConditions("[field1] = [field2]")
     val condition2 = createConditions("[field1] != [field2]")
-    val result1 = RuleEvaluator.calculate(condition1, csv)
-    val result2 = RuleEvaluator.calculate(condition2, csv)
+    val result1 = RuleEvaluator.checkRules(condition1, csv)
+    val result2 = RuleEvaluator.checkRules(condition2, csv)
 
     result1.successful shouldBe true
     result2.successful shouldBe false
@@ -119,8 +119,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val condition1 = createConditions("[field1] > -5")
     val condition2 = createConditions("[field1] > 1")
 
-    val result1 = RuleEvaluator.calculate(condition1, csv)
-    val result2 = RuleEvaluator.calculate(condition2, csv)
+    val result1 = RuleEvaluator.checkRules(condition1, csv)
+    val result2 = RuleEvaluator.checkRules(condition2, csv)
 
     result1.successful shouldBe true
     result2.successful shouldBe false
@@ -143,9 +143,9 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       "[field1] != [field2]"
     )
 
-    val result1 = RuleEvaluator.calculate(condition1, csv)
-    val result2 = RuleEvaluator.calculate(condition2, csv)
-    val result3 = RuleEvaluator.calculate(condition3, csv)
+    val result1 = RuleEvaluator.checkRules(condition1, csv)
+    val result2 = RuleEvaluator.checkRules(condition2, csv)
+    val result3 = RuleEvaluator.checkRules(condition3, csv)
 
     result1.successful shouldBe false
     result1.failReasons should contain allOf("field1", "field2")
@@ -165,7 +165,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     )
 
     assertThrows[CharacterNotFoundException](
-      RuleEvaluator.calculate(conditions, csv)
+      RuleEvaluator.checkRules(conditions, csv)
     )
   }
 
@@ -178,7 +178,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val conditions = createConditions("[nonexistent field] = 1")
 
     assertThrows[NoSuchFieldException](
-      RuleEvaluator.calculate(conditions, csv)
+      RuleEvaluator.checkRules(conditions, csv)
     )
   }
 
@@ -189,7 +189,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     )
     val conditions = createConditions("[field1] [field2]")
     assertThrows[InvalidConditionException] {
-      RuleEvaluator.calculate(conditions, csv)
+      RuleEvaluator.checkRules(conditions, csv)
     }
   }
 
@@ -201,7 +201,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       "[field1] = 1 OR"
     )
     assertThrows[MissingArgumentException] {
-      RuleEvaluator.calculate(conditions, csv)
+      RuleEvaluator.checkRules(conditions, csv)
     }
   }
 
@@ -212,7 +212,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val conditions1 = createConditions("[field1] 123")
 
     assertThrows[InvalidConditionException] {
-      RuleEvaluator.calculate(conditions1, csv)
+      RuleEvaluator.checkRules(conditions1, csv)
     }
   }
 

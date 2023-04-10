@@ -1,6 +1,6 @@
 package ruleevaluator
 
-import ruleevaluator.calculator.Calculator
+import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
 import ruleevaluator.csv.{Csv, CsvFileParser}
 import ruleevaluator.rule.Result
@@ -14,10 +14,11 @@ class RuleEvaluator(val conditions: String, val csv: String) {
   private val DELIMITER = "\t"
   private val LINE_BREAK = "\n"
 
+  // TODO move this function to a separate class. Refactor.
   def run(): Unit = {
     val conditionsFile = RulesFileParser.parse(new File(conditions))
     val parsedcsv = CsvFileParser.parse(new File(csv))
-    val result = RuleEvaluator.calculate(conditionsFile, parsedcsv)
+    val result = RuleEvaluator.checkRules(conditionsFile, parsedcsv)
     printResult(result.toString, getFailReasons(result))
   }
 
@@ -35,10 +36,10 @@ class RuleEvaluator(val conditions: String, val csv: String) {
 }
 
 object RuleEvaluator {
-  def calculate(conditions: RulesFileContent, parsedcsv: Csv): Result = {
+  def checkRules(conditions: RulesFileContent, parsedcsv: Csv): Result = {
     conditions.lines
       .map(line => parseAndCombineTokens(line, parsedcsv))
-      .map(Calculator.calculate)
+      .map(Evaluator.evaluate)
       .fold(Result.PASS)((a, b) => a combineWithAnd b)
   }
 

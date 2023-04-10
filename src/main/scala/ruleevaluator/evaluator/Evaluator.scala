@@ -1,4 +1,4 @@
-package ruleevaluator.calculator
+package ruleevaluator.evaluator
 
 import ruleevaluator.rule.{Computable, Result}
 import ruleevaluator.token.Argument.CsvField
@@ -6,8 +6,8 @@ import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOpe
 
 import scala.annotation.tailrec
 
-object Calculator {
-  def calculate(tokens: List[Token]): Result =
+object Evaluator {
+  def evaluate(tokens: List[Token]): Result =
     splitBy[Token](tokens, token => token.isInstanceOf[LogicalOperator.Or.type])
       .map(list =>
         splitBy(list, token => token.isInstanceOf[LogicalOperator.And.type])
@@ -20,7 +20,7 @@ object Calculator {
 
   private def convertToComputable(token: Token): Option[Computable] = {
     token match
-      case e: BasicToken.Expression => Some(() => Calculator.calculate(e.tokens))
+      case e: BasicToken.Expression => Some(() => Evaluator.evaluate(e.tokens))
       case c: BasicToken.Condition  => Some(() => c.rule.compute())
       case _ => None
   }
