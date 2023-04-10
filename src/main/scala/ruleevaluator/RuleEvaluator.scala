@@ -8,7 +8,7 @@ import ruleevaluator.rule.ResultMonoid._
 import ruleevaluator.rulesfile.{RulesFileContent, RuleLine, RulesFileParser}
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
-import cats.Monoid
+import cats.implicits._
 
 import java.io.File
 
@@ -42,7 +42,7 @@ object RuleEvaluator {
     conditions.lines
       .map(line => parseAndCombineTokens(line, parsedcsv))
       .map(Evaluator.evaluate)
-      .reduce((a, b) => Monoid.combine(a, b)(andResultMonoid))
+      .combineAll(andResultMonoid)
 
   private def parseAndCombineTokens(line: RuleLine, csv: Csv): List[Token] = {
     val tokens = new Scanner(line, csv).parseTokens()

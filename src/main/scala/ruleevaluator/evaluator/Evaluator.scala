@@ -4,7 +4,7 @@ import ruleevaluator.rule.{Computable, Result}
 import ruleevaluator.rule.ResultMonoid._
 import ruleevaluator.token.Argument.CsvField
 import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
-import cats.Monoid
+import cats.implicits._
 
 import scala.annotation.tailrec
 
@@ -16,9 +16,9 @@ object Evaluator {
           .flatten
           .flatMap(convertToComputable)
           .map(_.compute())
-          .reduce((a, b) => Monoid.combine(a, b)(andResultMonoid))
+          .combineAll(andResultMonoid)
       )
-      .reduce((a, b) => Monoid.combine(a, b)(orResultMonoid))
+      .combineAll(orResultMonoid)
 
   private def convertToComputable(token: Token): Option[Computable] = {
     token match
