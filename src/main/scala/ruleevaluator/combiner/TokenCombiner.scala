@@ -5,33 +5,22 @@ import ruleevaluator.exception.{InvalidConditionException, MissingArgumentExcept
 import ruleevaluator.token.*
 import ruleevaluator.token.BasicToken.Expression
 
-class TokenCombiner(val tokens: List[Token], val line: Int) extends Iterator[Token] {
-  private var current = 0
-
-  override def hasNext(): Boolean = current < tokens.size
-
-  override def next(): Token =
-    current += 1
-    tokens(current - 1)
+class TokenCombiner(val tokens: List[Token], val line: Int) {
 
   def combineTokensToConditions(): List[Token] =
     ensureExpressionContainsMoreThanOneToken()
-    this.map {
-      case lo: LogicalOperator => ensureArgumentsAreGiven(lo)
-      case a: Argument => validateOrderOfTokens(a)
-      case _: ComparisonOperator => createConditionToken()
-      case e: Expression => simplify(e)
-      case token => token
+    val tokenIterator = TokenIterator(tokens)
+    tokenIterator.map {
+      case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => token
+      case TokenFrame(_, token: LogicalOperator, _) => throw MissingArgumentException(
+        s"Missing Argument(s) for operator: ${token} in line: $line.")
+      case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => BasicToken.Condition(Rule(c, a1, a2))
+      case tokenFrame@TokenFrame(_, _: Argument, _) => validateOrderOfTokens(tokenFrame)
+      case TokenFrame(_, e: Expression, _) => simplify(e)
+      case tokenFrame => tokenFrame.currentToken
     }
       .toList
       .filterNot(token => token.isInstanceOf[Argument])
-
-  private def createConditionToken(): BasicToken.Condition =
-    val rule = Rule(
-      argument1 = getPreviousToken.asInstanceOf[Argument],
-      operator = getCurrentToken.asInstanceOf[ComparisonOperator],
-      argument2 = getNextToken.asInstanceOf[Argument])
-    BasicToken.Condition(rule)
 
   private def simplify(expression: BasicToken.Expression): BasicToken.Expression =
     val tokens = new TokenCombiner(expression.tokens, line).combineTokensToConditions()
@@ -43,47 +32,18 @@ class TokenCombiner(val tokens: List[Token], val line: Int) extends Iterator[Tok
         s"Invalid condition in line $line."
       )
 
-  private def validateOrderOfTokens(token: Token): Token = {
+  private def validateOrderOfTokens(tokenFrame: TokenFrame): Token = {
     def isArgumentOrExpression(t: Token) =
       t.isInstanceOf[Argument] || t.isInstanceOf[Expression]
 
     val orderIsInvalid =
-      getPreviousOpt.exists(isArgumentOrExpression) ||
-        getNextOpt.exists(isArgumentOrExpression)
+      tokenFrame.previousToken.exists(isArgumentOrExpression) ||
+        tokenFrame.nextToken.exists(isArgumentOrExpression)
+
     if orderIsInvalid then
-      throw InvalidConditionException(
-        s"Operator is missing in line $line."
-      )
+      throw InvalidConditionException(s"Operator is missing in line $line.")
     else
-      token
+      tokenFrame.currentToken
   }
-
-  private def ensureArgumentsAreGiven(token: Token): Token =
-    getPreviousToken
-    getNextToken
-    token
-
-  private def getCurrentToken: Token =
-    tokens(current - 1)
-
-  private def getPreviousToken: Token =
-    getPreviousOpt.getOrElse(
-      throw MissingArgumentException(
-        s"1st argument is missing for operator: ${tokens(current)} in line: $line."
-      )
-    )
-
-  private def getNextToken: Token =
-    getNextOpt.getOrElse(
-      throw MissingArgumentException(
-        s"2nd argument is missing for operator: ${tokens(current - 1)} in line: $line."
-      )
-    )
-
-  private def getPreviousOpt: Option[Token] =
-    if current <= 1 then None else Some(tokens(current - 2))
-
-  private def getNextOpt: Option[Token] =
-    if !hasNext() then None else Some(tokens(current))
 
 }
