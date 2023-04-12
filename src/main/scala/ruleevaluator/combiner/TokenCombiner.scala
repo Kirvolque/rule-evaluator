@@ -27,7 +27,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
     BasicToken.Expression(tokens)
 
   private def ensureExpressionContainsMoreThanOneToken(): Unit =
-    if tokens.size == 1 && tokens.head.isInstanceOf[BasicToken.Expression.type] then
+    if tokens.size == 1 && !tokens.head.isInstanceOf[BasicToken.Expression] then
       throw InvalidConditionException(
         s"Invalid condition in line $line."
       )

@@ -6,7 +6,7 @@ import ruleevaluator.csv.Csv
 import ruleevaluator.exception
 import ruleevaluator.rule.{Computable, Result}
 
-class Rule(val operator: ComparisonOperator, val argument1: Argument, val argument2: Argument) extends Computable {
+case class Rule(val operator: ComparisonOperator, val argument1: Argument, val argument2: Argument) extends Computable {
   override def compute(): Result = {
     operator match {
       case ComparisonOperator.Less => check((arg1, arg2) => arg1 < arg2)
