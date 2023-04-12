@@ -8,7 +8,7 @@ import scala.util.{Failure, Success, Try}
 class ExpressionSubstringExtractor(val source: String, val line: Int) {
   private val punctuationMarks = collection.mutable.Stack[Char]()
   private var current = 0
-  
+
   def extractExpressionStringFrom(startPosition: Int): String = {
     current = startPosition
     advance()
@@ -48,16 +48,11 @@ class ExpressionSubstringExtractor(val source: String, val line: Int) {
   }
 
   private def removeFromStack(character: Char): Boolean = {
-    Try(punctuationMarks.pop()) match {
-      case Success(top) if top == character =>
-        current += 1
-        true
-      case Success(top) =>
-        punctuationMarks.push(top)
-        true
-      case Failure(_) =>
-        throw UnexpectedCharacterException(s"Unexpected character '$character' in line $line: $source")
+    if (punctuationMarks.isEmpty || punctuationMarks.pop() != character) {
+      throw UnexpectedCharacterException(s"Unexpected character '$character' in line $line: $source")
     }
+    current += 1
+    true
   }
 }
 
