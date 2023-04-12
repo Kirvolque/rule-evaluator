@@ -8,11 +8,7 @@ import scala.util.{Failure, Success, Try}
 class ExpressionSubstringExtractor(val source: String, val line: Int) {
   private val punctuationMarks = collection.mutable.Stack[Char]()
   private var current = 0
-
-  /** Extracts an expression substring starting from the given position,
-   *  ignoring punctuation marks such as parentheses and quotes.
-   *  Returns the substring or fails with an exception.
-   */
+  
   def extractExpressionStringFrom(startPosition: Int): String = {
     current = startPosition
     advance()
