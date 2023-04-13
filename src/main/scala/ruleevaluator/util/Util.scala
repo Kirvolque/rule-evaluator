@@ -2,8 +2,18 @@ package ruleevaluator.util
 
 import scala.annotation.tailrec
 
+/**
+ * This object contains utility functions for common operations.
+ */
 object Util {
 
+  /**
+   * Splits a list into sublists using a given predicate as a splitting criterion.
+   *
+   * @param list      The list to split.
+   * @param predicate The predicate to use as a splitting criterion.
+   * @return A list of sublists.
+   */
   def splitBy[T](list: List[T], predicate: T => Boolean): List[List[T]] = {
     val indices = list.indices.filter(i => predicate(list(i)))
 

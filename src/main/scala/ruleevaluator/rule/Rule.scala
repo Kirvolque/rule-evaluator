@@ -6,7 +6,22 @@ import ruleevaluator.csv.Csv
 import ruleevaluator.exception
 import ruleevaluator.rule.{Computable, Result}
 
-case class Rule(val operator: ComparisonOperator, val argument1: Argument, val argument2: Argument) extends Computable {
+/**
+ * Represents a rule that compares two arguments using a comparison operator.
+ *
+ * @param operator  the comparison operator used in the rule
+ * @param argument1 the first argument used in the comparison
+ * @param argument2 the second argument used in the comparison
+ */
+case class Rule(operator: ComparisonOperator, argument1: Argument, argument2: Argument) extends Computable {
+
+  /**
+   * Computes the result of the rule by applying the specified comparison operator to the two arguments.
+   *
+   * @return a Result object representing the outcome of the comparison
+   * @throws IncompatibleTypesException if the two arguments are not compatible for the specified comparison operator
+   * @throws WrongTypeException         if either argument is not a valid type for the specified comparison operator
+   */
   override def compute(): Result = {
     operator match {
       case ComparisonOperator.Less => check((arg1, arg2) => arg1 < arg2)
@@ -21,15 +36,14 @@ case class Rule(val operator: ComparisonOperator, val argument1: Argument, val a
   private def notEqual(): Result = negateResult(equal())
 
   private def equal(): Result = (argument1, argument2) match
-    case (a1: Argument.StringArg, _) => stringEquals()
-    case (_, a2: Argument.StringArg) => stringEquals()
-    case (a1: Argument.DoubleArg, _) => check((a, b) => a == b)
-    case (_, a2: Argument.DoubleArg) => check((a, b) => a == b)
-    case (a1: Argument.CsvField, a2: Argument.CsvField) => {
+    case (_: Argument.StringArg, _) => stringEquals()
+    case (_, _: Argument.StringArg) => stringEquals()
+    case (_: Argument.DoubleArg, _) => check((a, b) => a == b)
+    case (_, _: Argument.DoubleArg) => check((a, b) => a == b)
+    case (a1: Argument.CsvField, _: Argument.CsvField) =>
       convertFieldValueToDouble(a1) match
         case Some(_) => check((a, b) => a == b)
         case None => stringEquals()
-    }
     case _ => throw IncompatibleTypesException(operator, argument1, argument2)
 
   private def negateResult(result: Result): Result = if (result.successful) Result.fail(Seq(argument1, argument2)) else Result.PASS

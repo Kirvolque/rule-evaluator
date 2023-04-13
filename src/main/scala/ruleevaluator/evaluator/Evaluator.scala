@@ -8,7 +8,18 @@ import cats.implicits.*
 import ruleevaluator.util.Util
 
 
+/**
+ * The Evaluator object provides a single public method that takes a list of tokens representing rules 
+ * (in tokenized form) and returns the result of their evaluation
+ */
 object Evaluator {
+
+  /**
+   * Evaluates a list of tokens representing a set of rules and returns the overall result.
+   *
+   * @param tokens The list of tokens representing the rules to be evaluated.
+   * @return The `Result` of the evaluation of the given rules.
+   */
   def evaluate(tokens: List[Token]): Result =
     Util.splitBy[Token](tokens, token => token.isInstanceOf[LogicalOperator.Or.type])
       .map(list =>
@@ -23,7 +34,7 @@ object Evaluator {
   private def convertToComputable(token: Token): Option[Computable] = {
     token match
       case e: BasicToken.Expression => Some(() => Evaluator.evaluate(e.tokens))
-      case c: BasicToken.Condition  => Some(() => c.rule.compute())
+      case c: BasicToken.Condition => Some(() => c.rule.compute())
       case _ => None
   }
 

@@ -2,6 +2,12 @@ package ruleevaluator.combiner
 
 import ruleevaluator.token.Token
 
+/**
+ * A class that provides an iterator to traverse a list of tokens in a frame of three consecutive tokens:
+ * the previous token, the current token, and the next token.
+ *
+ * @param tokens a list of tokens to be iterated over
+ */
 class TokenIterator(val tokens: List[Token]) extends Iterator[TokenFrame] {
 
   private var current = 0

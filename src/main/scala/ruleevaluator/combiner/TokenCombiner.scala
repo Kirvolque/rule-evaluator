@@ -5,8 +5,21 @@ import ruleevaluator.exception.{InvalidConditionException, MissingArgumentExcept
 import ruleevaluator.token.*
 import ruleevaluator.token.BasicToken.Expression
 
+/**
+ * A TokenCombiner takes a list of tokens and combines them to form a list of conditions.
+ *
+ * @param tokens The list of tokens to combine
+ * @param line   The line number of the tokens in the original source code
+ */
 class TokenCombiner(val tokens: List[Token], val line: Int) {
 
+  /**
+   * Combine the tokens to form a list of conditions.
+   *
+   * @return A list of conditions
+   * @throws InvalidConditionException If an invalid condition is detected
+   * @throws MissingArgumentException  If an argument is missing for an operator
+   */
   def combineTokensToConditions(): List[Token] =
     ensureExpressionContainsMoreThanOneToken()
     val tokenIterator = TokenIterator(tokens)

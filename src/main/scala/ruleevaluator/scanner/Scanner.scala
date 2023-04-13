@@ -7,10 +7,18 @@ import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOpe
 import ruleevaluator.scanner.ExpressionSubstringExtractor
 import ruleevaluator.token.BasicToken.Whitespace
 
+/** The Scanner class is responsible for tokenizing a given expression string.
+ *
+ *
+ *
+ * @constructor Create a new Scanner instance.
+ * @param source The expression string to be tokenized.
+ * @param csv    The Csv instance used to retrieve CSV field values.
+ * @param line   The line number of the expression in the rule file.
+ */
 class Scanner(val source: String,
               val csv: Csv,
               val line: Int) extends Iterator[Token] {
-
   private var current: Int = 0
 
   private val OR: String = "or"
@@ -22,11 +30,26 @@ class Scanner(val source: String,
     LogicalOperator.Or -> OR,
     ComparisonOperator.NotEqual -> NOT_EQUAL
   )
+
+  /** Create a new Scanner instance.
+   *
+   * @param conditionLine The RuleLine instance containing the expression string to be tokenized and its line number.
+   * @param csv           The Csv instance used to retrieve CSV field values.
+   * @return A new Scanner instance.
+   */
   def this(conditionLine: RuleLine, csv: Csv) =
     this(conditionLine.lineString, csv, conditionLine.lineNumber)
 
+  /** Check if there are more tokens to be read.
+   *
+   * @return true if there are more tokens to be read, false otherwise.
+   */
   override def hasNext: Boolean = current < source.length()
 
+  /** Get the next token in the expression string.
+   *
+   * @return The next Token instance.
+   */
   override def next(): Token = {
     val c = advance()
     c match {
@@ -47,6 +70,10 @@ class Scanner(val source: String,
     }
   }
 
+  /** Parse all the tokens in the expression string.
+   *
+   * @return A list of Token instances.
+   */
   def parseTokens(): List[Token] = {
     this.filterNot(token => token.isInstanceOf[BasicToken.Whitespace.type]).toList
   }
