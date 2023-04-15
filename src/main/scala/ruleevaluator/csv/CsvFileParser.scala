@@ -5,13 +5,13 @@ import java.io.File
 import ruleevaluator.csv.CsvRow
 
 object CsvFileParser {
-  private val DELIMITER: String = ","
 
-  def parse(file: File): CsvRow = {
-    val lines = Source.fromFile(file = file).getLines().toList
-    val header = lines.head.split(DELIMITER).toList
-    val line = lines.tail.head.split(DELIMITER).toList
-    val content = header.zip(line).toMap
-    CsvRow(content)
+  def parse(file: File): Iterator[CsvRow] = {
+    val lines = Source.fromFile(file = file).getLines()
+    val header = lines.next().split(CsvConstants.DELIMITER).toList
+    lines.map(line => {
+      val row = line.split(CsvConstants.DELIMITER)
+      CsvRow(header.zip(row).toMap)
+    })
   }
 }

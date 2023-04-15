@@ -13,9 +13,6 @@ import java.io.File
 object Main {
   private case class Config(csvFile: String = "", ruleFile: String = "")
 
-  private val DELIMITER = "\t"
-  private val LINE_BREAK = "\n"
-
   def main(args: Array[String]): Unit = {
     val parser = new OptionParser[Config]("RuleEvaluator") {
       opt[String]('c', "csv")
@@ -42,19 +39,11 @@ object Main {
 
   private def run(ruleFile: String, csvFile: String): Unit = {
     val conditionsFile = RulesFileParser.parse(new File(ruleFile))
-    val parsedCsv = CsvFileParser.parse(new File(csvFile))
-    val result = RuleEvaluator.checkRules(conditionsFile, parsedCsv)
-    printResult(result.toString, getFailReasons(result))
+    CsvFileParser.parse(new File(csvFile))
+      .zipWithIndex
+      .foreach((row, index) => {
+        val result = RuleEvaluator.checkRules(conditionsFile, row)
+        println(s"row: ${index + 1} status: $result")
+      })
   }
-
-  private def getFailReasons(result: Result): String =
-    if (result.successful) "" else result.failReasons.mkString("|")
-
-  private def printResult(status: String, failReasons: String): Unit = {
-    printOut("Status", "Fail Reason")
-    printOut(status, failReasons)
-  }
-
-  private def printOut(values: String*): Unit =
-    println(values.mkString(DELIMITER) + LINE_BREAK)
 }
