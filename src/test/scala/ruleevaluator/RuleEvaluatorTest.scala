@@ -2,7 +2,7 @@ package ruleevaluator
 
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
-import ruleevaluator.csv.Csv
+import ruleevaluator.csv.CsvRow
 import ruleevaluator.exception.{CharacterNotFoundException, InvalidConditionException, MissingArgumentException, NoSuchFieldException}
 import ruleevaluator.rulesfile.{RuleLine, RulesFileContent}
 
@@ -223,8 +223,8 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     new RulesFileContent(conditionLines)
   }
 
-  private def createCsv(fields: (String, String)*): Csv = {
-    new Csv(fields.toMap)
+  private def createCsv(fields: (String, String)*): CsvRow = {
+    new CsvRow(fields.toMap)
   }
 
 }

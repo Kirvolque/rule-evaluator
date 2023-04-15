@@ -3,7 +3,7 @@ import ruleevaluator.csv.CsvFileParser
 import ruleevaluator.rulesfile.RulesFileParser
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
-import ruleevaluator.csv.{Csv, CsvFileParser}
+import ruleevaluator.csv.{CsvRow, CsvFileParser}
 import ruleevaluator.rule.Result
 import ruleevaluator.rulesfile.{RuleLine, RulesFileContent, RulesFileParser}
 import scopt.OptionParser

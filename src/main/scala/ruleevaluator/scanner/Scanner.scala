@@ -2,7 +2,7 @@ package ruleevaluator.scanner
 
 import ruleevaluator.rulesfile.RuleLine
 import ruleevaluator.exception.{CharacterNotFoundException, UnexpectedCharacterException}
-import ruleevaluator.csv.Csv
+import ruleevaluator.csv.CsvRow
 import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
 import ruleevaluator.scanner.ExpressionSubstringExtractor
 import ruleevaluator.token.BasicToken.Whitespace
@@ -17,7 +17,7 @@ import ruleevaluator.token.BasicToken.Whitespace
  * @param line   The line number of the expression in the rule file.
  */
 class Scanner(val source: String,
-              val csv: Csv,
+              val csv: CsvRow,
               val line: Int) extends Iterator[Token] {
   private var current: Int = 0
 
@@ -37,7 +37,7 @@ class Scanner(val source: String,
    * @param csv           The Csv instance used to retrieve CSV field values.
    * @return A new Scanner instance.
    */
-  def this(conditionLine: RuleLine, csv: Csv) =
+  def this(conditionLine: RuleLine, csv: CsvRow) =
     this(conditionLine.lineString, csv, conditionLine.lineNumber)
 
   /** Check if there are more tokens to be read.

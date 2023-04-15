@@ -2,7 +2,7 @@ package ruleevaluator.csv
 
 import scala.collection.immutable.Map
 
-class Csv(val content: Map[String, String]) {
+class CsvRow(val content: Map[String, String]) {
 
   def getField(field: String): String =
     content.get(field) match {

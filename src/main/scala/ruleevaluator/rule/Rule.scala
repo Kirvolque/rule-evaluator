@@ -2,7 +2,7 @@ package ruleevaluator.rule
 
 import ruleevaluator.exception.{IncompatibleTypesException, WrongTypeException}
 import ruleevaluator.token.{Argument, ComparisonOperator, Token}
-import ruleevaluator.csv.Csv
+import ruleevaluator.csv.CsvRow
 import ruleevaluator.exception
 import ruleevaluator.rule.{Computable, Result}
 
