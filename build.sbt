@@ -7,6 +7,7 @@ lazy val root = (project in file("."))
     name := "RuleEvaluator",
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
-      "org.typelevel" %% "cats-core" % "2.9.0"
+      "org.typelevel" %% "cats-core" % "2.9.0",
+      "com.github.scopt" %% "scopt" % "4.1.0"
     )
   )

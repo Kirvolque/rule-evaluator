@@ -5,7 +5,7 @@ import java.io.File
 import ruleevaluator.csv.Csv
 
 object CsvFileParser {
-  private val DELIMITER: String = "\t"
+  private val DELIMITER: String = ","
 
   def parse(file: File): Csv = {
     val lines = Source.fromFile(file = file).getLines().toList
