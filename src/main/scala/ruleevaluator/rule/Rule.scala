@@ -24,12 +24,12 @@ case class Rule(operator: ComparisonOperator, argument1: Argument, argument2: Ar
    */
   override def compute(): Result = {
     operator match {
-      case ComparisonOperator.Less => check((arg1, arg2) => arg1 < arg2)
-      case ComparisonOperator.LessEqual => check((arg1, arg2) => arg1 <= arg2)
-      case ComparisonOperator.Greater => check((arg1, arg2) => arg1 > arg2)
+      case ComparisonOperator.Less         => check((arg1, arg2) => arg1 < arg2)
+      case ComparisonOperator.LessEqual    => check((arg1, arg2) => arg1 <= arg2)
+      case ComparisonOperator.Greater      => check((arg1, arg2) => arg1 > arg2)
       case ComparisonOperator.GreaterEqual => check((arg1, arg2) => arg1 >= arg2)
-      case ComparisonOperator.NotEqual => notEqual()
-      case ComparisonOperator.Equal => equal()
+      case ComparisonOperator.NotEqual     => notEqual()
+      case ComparisonOperator.Equal        => equal()
     }
   }
 
