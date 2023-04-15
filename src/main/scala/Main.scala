@@ -3,12 +3,12 @@ import ruleevaluator.csv.CsvFileParser
 import ruleevaluator.rulesfile.RulesFileParser
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
-import ruleevaluator.csv.{CsvRow, CsvFileParser}
+import ruleevaluator.csv.{CsvFileParser, CsvRow}
 import ruleevaluator.rule.Result
 import ruleevaluator.rulesfile.{RuleLine, RulesFileContent, RulesFileParser}
 import scopt.OptionParser
 
-import java.io.File
+import scala.util.Using
 
 object Main {
   private case class Config(csvFile: String = "", ruleFile: String = "")
@@ -38,12 +38,15 @@ object Main {
   }
 
   private def run(ruleFile: String, csvFile: String): Unit = {
-    val conditionsFile = RulesFileParser.parse(new File(ruleFile))
-    CsvFileParser.parse(new File(csvFile))
-      .zipWithIndex
-      .foreach((row, index) => {
-        val result = RuleEvaluator.checkRules(conditionsFile, row)
-        println(s"row: ${index + 1} status: $result")
-      })
+    val conditionsFile = RulesFileParser.parse(ruleFile)
+    Using(io.Source.fromFile(csvFile)) { csvFileSource => {
+      CsvFileParser.parse(csvFileSource)
+        .zipWithIndex
+        .foreach((row, index) => {
+          val result = RuleEvaluator.checkRules(conditionsFile, row)
+          println(s"row: ${index + 1} status: $result")
+        })
+    }
+    }
   }
 }
