@@ -3,12 +3,8 @@
 
 # Rule Evaluator
 
-Rule Evaluator is a command-line application written in Scala 3 that allows you to evaluate a set of conditions on a CSV file
-Rule Evaluator
+Rule Evaluator is a command-line application written in Scala 3 that allows you to evaluate a set of conditions on a CSV file.
 This application is currently a work in progress.
-
-Rule Evaluator is a Scala 3 application that allows you to evaluate rules on a CSV file.
-
 This project was developed with the assistance of the GPT-3.5-based language model called ChatGPT, which was used to generate tests, documentation, and some parts of the code.
 
 ## Usage
@@ -16,7 +12,7 @@ To use Rule Evaluator, you must have a CSV file with your data and a set of cond
 
 ### Example Run Command
 ```
-sbt run --rule rules.txt --csv example.csv
+sbt "run --rule rules.txt --csv example.csv"
 ```
 
 ### Example Rule File
