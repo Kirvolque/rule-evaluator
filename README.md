@@ -29,7 +29,9 @@ This project uses the following technologies:
 - [Scala 3](https://docs.scala-lang.org/scala3/) - The programming language used to write the application.
 - [sbt](https://www.scala-sbt.org/) - The build tool used to manage dependencies and build the project.
 - [ScalaTest](https://www.scalatest.org/) - The testing framework used to write and run tests.
-- [Cats](https://typelevel.org/cats/) - The library used to provide type classes such as `Monoid` for functional programming in Scala. 
+- [Cats](https://typelevel.org/cats/) - The library used to provide type classes such as `Monoid` for functional programming in Scala.
+- [ZIO](https://zio.dev/) - The library used for managing side effects and concurrency.
+
 
 ## Development
 To build and test the application, you can use the following commands:
