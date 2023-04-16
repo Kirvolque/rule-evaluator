@@ -1,17 +1,17 @@
 package ruleevaluator.rulesfile
 
-import java.io.{BufferedReader, File, FileReader}
-import scala.util.Using
-
+import zio.stream.ZPipeline
+import zio.{Task, ZIO, stream}
 object RulesFileParser {
-  def parse(fileName: String): RulesFileContent = {
-    Using(io.Source.fromFile(fileName)) { source => {
-      val lines = source.getLines()
-      val rules = lines.zipWithIndex.map { case (line, index) =>
-        new RuleLine(index + 1, line)
-      }
-      new RulesFileContent(rules.toList)
-    }
-    }.get
-  }
+  def parse(fileName: String): ZIO[Any, Throwable, RulesFileContent] =
+    stream.ZStream
+      .fromFileName(fileName)
+      .via(ZPipeline.utf8Decode >>> ZPipeline.splitLines)
+      .runCollect
+      .map(lines => {
+        val rules = lines.zipWithIndex.toList.map { (line, index) =>
+          new RuleLine(index + 1, line)
+        }
+        new RulesFileContent(rules)
+      })
 }

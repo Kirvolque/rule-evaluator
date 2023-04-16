@@ -12,9 +12,9 @@ import cats.implicits._
 
 
 object RuleEvaluator {
-  def checkRules(conditions: RulesFileContent, parsedcsv: CsvRow): Result =
+  def checkRules(conditions: RulesFileContent, parsedCsv: CsvRow): Result =
     conditions.lines
-      .map(line => parseAndCombineTokens(line, parsedcsv))
+      .map(line => parseAndCombineTokens(line, parsedCsv))
       .map(Evaluator.evaluate)
       .combineAll(andResultMonoid)
 

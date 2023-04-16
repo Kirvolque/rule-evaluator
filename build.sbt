@@ -8,6 +8,9 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
       "org.typelevel" %% "cats-core" % "2.9.0",
-      "com.github.scopt" %% "scopt" % "4.1.0"
+      "com.github.scopt" %% "scopt" % "4.1.0",
+      "dev.zio" %% "zio" % "2.0.10",
+      "dev.zio" %% "zio-streams" % "2.0.10",
+      "dev.zio" %% "zio-test" % "2.0.10" % "test",
     )
   )
