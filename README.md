@@ -12,16 +12,34 @@ Rule Evaluator is a Scala 3 application that allows you to evaluate rules on a C
 This project was developed with the assistance of the GPT-3.5-based language model called ChatGPT, which was used to generate tests, documentation, and some parts of the code.
 
 ## Usage
-To use Rule Evaluator, you must have a CSV file with your data and a set of conditions that you want to evaluate for each row of data. Conditions should be in the format of [columnName] operator value, where operator can be any of the following: `=`, `!=`, `<`, `>`, `<=`, `>=`.
+To use Rule Evaluator, you must have a CSV file with your data and a set of conditions that you want to evaluate for each row of data.
 
-Example conditions:
+### Example Run Command
 ```
-[columnA] > 15 AND [columnB] == 'value'
-[columnC] < 5 OR [columnD] != 'foo'
+sbt run --rule rules.txt --csv example.csv
 ```
 
-The application will then evaluate each row in the CSV file against the specified conditions and output the result for each row. If a row fails the conditions, the application will also output a list of reasons why the conditions failed.
+### Example Rule File
+```
+[Column1] = 1 AND [Column2] = "abc"
+```
 
+
+### Example CSV File
+```
+Column1,Column2,Column3
+1,abc,2
+2,cbe,3
+```
+
+### Example Output
+For the above example rule and CSV files, the output would be:
+
+```
+row: 1 status: Pass
+row: 2 status: Fail: Column1 | Column2
+```
+The application will evaluate each row in the CSV file against the specified conditions and output the result for each row. If a row fails the conditions, the application will also output a list of reasons why the conditions failed.
 ## Technologies Used
 
 This project uses the following technologies:
