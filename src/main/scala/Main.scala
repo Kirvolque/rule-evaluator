@@ -3,7 +3,7 @@ import ruleevaluator.csv.{CsvConstants, CsvFileParser, CsvRow}
 import ruleevaluator.rulesfile.RulesFileParser
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
-import ruleevaluator.rule.Result
+import ruleevaluator.result.Result
 import ruleevaluator.rulesfile.{RuleLine, RulesFileContent, RulesFileParser}
 import scopt.OptionParser
 import zio.stream.ZStream
@@ -37,12 +37,8 @@ object Main extends ZIOAppDefault  {
     }
 
     parser.parse(args, Config()) match {
-      case Some(config) =>
-        println(s"CSV file name: ${config.csvFile}")
-        println(s"Rule file name: ${config.ruleFile}")
-        config
-      case _ => throw IllegalArgumentException()
-      // arguments are bad, error message will have been displayed
+      case Some(config) => config
+      case _ => throw IllegalArgumentException(s"Illegal arguments ${args.mkString(", ")}")
     }
   }
 
@@ -51,7 +47,9 @@ object Main extends ZIOAppDefault  {
       .map(parsedRules => {
         CsvFileParser.parse(csvFile)
           .map(csv => RuleEvaluator.checkRules(parsedRules, csv))
-          .foreach(a => Console.printLine(a))
+          .zipWithIndex
+          .map((result, index) => s"row: ${index + 1} status: $result")
+          .foreach(resultString => Console.printLine(resultString))
       }).flatten
   }
 }

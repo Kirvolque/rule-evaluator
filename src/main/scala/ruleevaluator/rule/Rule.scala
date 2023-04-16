@@ -4,7 +4,8 @@ import ruleevaluator.exception.{IncompatibleTypesException, WrongTypeException}
 import ruleevaluator.token.{Argument, ComparisonOperator, Token}
 import ruleevaluator.csv.CsvRow
 import ruleevaluator.exception
-import ruleevaluator.rule.{Computable, Result}
+import ruleevaluator.result.Result
+import ruleevaluator.rule.Computable
 
 /**
  * Represents a rule that compares two arguments using a comparison operator.

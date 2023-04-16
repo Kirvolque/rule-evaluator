@@ -1,6 +1,7 @@
-package ruleevaluator.rule
+package ruleevaluator.result
 
 import cats.Monoid
+import ruleevaluator.result.Result
 
 /**
  *

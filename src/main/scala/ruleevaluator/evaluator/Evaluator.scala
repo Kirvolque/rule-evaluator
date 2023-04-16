@@ -1,10 +1,11 @@
 package ruleevaluator.evaluator
 
-import ruleevaluator.rule.{Computable, Result}
-import ruleevaluator.rule.ResultMonoid.*
+import ruleevaluator.rule.Computable
+import ruleevaluator.result.ResultMonoid.*
 import ruleevaluator.token.Argument.CsvField
 import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
 import cats.implicits.*
+import ruleevaluator.result.Result
 import ruleevaluator.util.Util
 
 

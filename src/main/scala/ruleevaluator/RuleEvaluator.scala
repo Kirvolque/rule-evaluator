@@ -3,12 +3,12 @@ package ruleevaluator
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
 import ruleevaluator.csv.{CsvRow, CsvFileParser}
-import ruleevaluator.rule.Result
-import ruleevaluator.rule.ResultMonoid._
+import ruleevaluator.result.ResultMonoid._
 import ruleevaluator.rulesfile.{RulesFileContent, RuleLine, RulesFileParser}
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
 import cats.implicits._
+import ruleevaluator.result.Result
 
 
 object RuleEvaluator {

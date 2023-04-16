@@ -26,7 +26,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
     tokenIterator.map {
       case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => token
       case TokenFrame(_, token: LogicalOperator, _) => throw MissingArgumentException(
-        s"Missing Argument(s) for operator: ${token} in line: $line.")
+        s"Missing Argument(s) for operator: $token in line: $line.")
       case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => BasicToken.Condition(Rule(c, a1, a2))
       case tokenFrame@TokenFrame(_, _: Argument, _) => validateOrderOfTokens(tokenFrame)
       case TokenFrame(_, e: Expression, _) => simplify(e)

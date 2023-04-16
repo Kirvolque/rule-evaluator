@@ -1,6 +1,6 @@
 package ruleevaluator.rule
 
-import ruleevaluator.rule.Result
+import ruleevaluator.result.Result
 
 /**
  * A trait representing something that can be computed to produce a result.

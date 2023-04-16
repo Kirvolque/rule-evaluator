@@ -1,5 +1,6 @@
-package ruleevaluator.rule
+package ruleevaluator.result
 
+import ruleevaluator.result.Result
 import ruleevaluator.token.{Argument, Token}
 
 /**
@@ -10,7 +11,8 @@ import ruleevaluator.token.{Argument, Token}
  */
 class Result(val successful: Boolean, val failReasons: Set[String]) {
 
-  override def toString: String = if (successful) "Pass" else "Fail"
+  override def toString: String = if (successful)
+    "Pass" else s"Fail: ${failReasons.mkString(" | ")}"
 }
 
 object Result {
