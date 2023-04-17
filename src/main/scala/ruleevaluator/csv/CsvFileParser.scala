@@ -8,6 +8,12 @@ import zio.{Scope, Task, UIO, ZIO, stream}
 
 object CsvFileParser {
 
+  /**
+   * Parses a CSV file and returns a `ZStream` of `CsvRow` values.
+   *
+   * @param fileName the name of the CSV file to parse
+   * @return a `ZStream` of `CsvRow` values
+   */
   def parse(fileName: String): ZStream[Any with Scope, Throwable, CsvRow] =
     stream.ZStream.fromIteratorZIO(stream.ZStream
       .fromFileName(fileName)
