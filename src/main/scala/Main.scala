@@ -28,10 +28,11 @@ object Main extends ZIOAppDefault {
    */
   private case class Config(csvFile: String = "", ruleFile: String = "")
 
-  override def run: ZIO[Any with ZIOAppArgs with Scope, Throwable, ExitCode] = for {
+  override def run: ZIO[Any with ZIOAppArgs with Scope, Throwable, ExitCode] =
+    (for {
     config <- ZIOAppArgs.getArgs.map(_.toList).map(a => parseConfig(a))
-    _ <- runApp(config.ruleFile, config.csvFile)
-  } yield ExitCode.success
+    _      <- runApp(config.ruleFile, config.csvFile)
+  } yield ()).exitCode
 
 
   /**
