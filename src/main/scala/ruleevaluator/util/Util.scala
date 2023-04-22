@@ -15,6 +15,7 @@ object Util {
    * @return A list of sublists.
    */
   def splitBy[T](list: List[T], predicate: T => Boolean): List[List[T]] = {
+    // TODO: make this method more efficient
     val indices = list.indices.filter(i => predicate(list(i)))
 
     def splitListByIndices(list: List[T], indices: List[Int]): List[List[T]] = {
