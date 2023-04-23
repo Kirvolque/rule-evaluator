@@ -27,9 +27,8 @@ object Result {
    * @return A failed Result instance with the appropriate failReasons.
    */
   def fail(tokens: Iterable[Token]): Result = {
-    val values = tokens.filter(token => token.isInstanceOf[Argument.CsvField]) // TODO refactor
-      .map(_.asInstanceOf[Argument.CsvField])
-      .map(_.name)
+    val values = tokens
+      .collect { case Argument.CsvField(name, _) => name }
       .toSet
     Result(false, values)
   }
