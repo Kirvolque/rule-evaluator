@@ -57,12 +57,12 @@ class Scanner(val source: String,
       case '"' => Argument.StringArg(readUntilNext('"'))
       case '[' => getCsvFieldValue
       case '=' => ComparisonOperator.Equal
-      case '<' => if (isFollowedBy('=')) ComparisonOperator.LessEqual else ComparisonOperator.Less
+      case '<' => if (isFollowedBy('=')) ComparisonOperator.LessEqual    else ComparisonOperator.Less
       case '>' => if (isFollowedBy('=')) ComparisonOperator.GreaterEqual else ComparisonOperator.Greater
-      case ch: Char if isDigit(ch) => parseNumber()
+      case ch: Char if isDigit(ch)  => readNumber()
       case _ if isLexeme(NOT_EQUAL) => read(ComparisonOperator.NotEqual)
-      case _ if isLexeme(OR) => read(LogicalOperator.Or)
-      case _ if isLexeme(AND) => read(LogicalOperator.And)
+      case _ if isLexeme(OR)        => read(LogicalOperator.Or)
+      case _ if isLexeme(AND)       => read(LogicalOperator.And)
       case ' ' => BasicToken.Whitespace
       case _ => throw new UnexpectedCharacterException(
         s"Unexpected character '$c' in line $line: $source."
@@ -134,7 +134,7 @@ class Scanner(val source: String,
   private def isDigit(character: Char): Boolean =
     Character.isDigit(character) || character == '-'
 
-  private def parseNumber(): Argument.DoubleArg = {
+  private def readNumber(): Argument.DoubleArg = {
     val lastIndex = (current until source.length)
       .filterNot(i => isDigit(source.charAt(i)) || source.charAt(i) == '.')
       .headOption
