@@ -46,8 +46,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
       )
 
   private def validateOrderOfTokens(tokenFrame: TokenFrame): Token = {
-    def isArgumentOrExpression(t: Token) =
-      t.isInstanceOf[Argument] || t.isInstanceOf[Expression]
+    def isArgumentOrExpression(t: Token) = t.isInstanceOf[Argument | Expression]
 
     val orderIsInvalid =
       tokenFrame.previousToken.exists(isArgumentOrExpression) ||
