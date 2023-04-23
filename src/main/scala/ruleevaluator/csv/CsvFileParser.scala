@@ -19,20 +19,14 @@ object CsvFileParser {
       .fromFileName(fileName)
       .via(ZPipeline.utf8Decode >>> ZPipeline.splitLines)
       .toIterator
+      .map(_.flatMap(_.toSeq))
       .map(getRows))
 
-  // TODO. Refactor
-  private def getRows(lines: Iterator[Either[Throwable, String]]): Iterator[CsvRow] = {
-    val header = getRow(lines.next()).split(CsvConstants.DELIMITER).toList
+  private def getRows(lines: Iterator[String]): Iterator[CsvRow] = {
+    val header = lines.next().split(CsvConstants.DELIMITER).toList
     lines.map(line => {
-      val row = getRow(line).split(CsvConstants.DELIMITER)
+      val row = line.split(CsvConstants.DELIMITER)
       CsvRow(header.zip(row).toMap)
     })
-  }
-
-  private def getRow(either: Either[Throwable, String]) = {
-    either match
-      case Left(error) => throw error
-      case Right(value) => value
   }
 }
