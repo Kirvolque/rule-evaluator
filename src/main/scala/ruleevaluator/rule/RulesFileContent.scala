@@ -1,4 +1,4 @@
-package ruleevaluator.rulesfile
+package ruleevaluator.rule
 
 /**
  * A class that represents the content of a rules file.

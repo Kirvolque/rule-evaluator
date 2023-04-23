@@ -4,11 +4,11 @@ import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
 import ruleevaluator.csv.{CsvRow, CsvFileParser}
 import ruleevaluator.result.ResultMonoid._
-import ruleevaluator.rulesfile.{RulesFileContent, RuleLine, RulesFileParser}
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
 import cats.implicits._
 import ruleevaluator.result.Result
+import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
 
 /**
  * The `RuleEvaluator` object provides a function to check a set of conditions against a parsed CSV file using an `Evaluator`.

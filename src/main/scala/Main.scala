@@ -1,10 +1,9 @@
 import ruleevaluator.RuleEvaluator
 import ruleevaluator.csv.{CsvConstants, CsvFileParser, CsvRow}
-import ruleevaluator.rulesfile.RulesFileParser
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
 import ruleevaluator.result.Result
-import ruleevaluator.rulesfile.{RuleLine, RulesFileContent, RulesFileParser}
+import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
 import scopt.OptionParser
 import zio.stream.ZStream
 import zio.{Console, ZIO, ZIOApp}

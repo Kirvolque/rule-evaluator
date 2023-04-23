@@ -1,4 +1,4 @@
-package ruleevaluator.rulesfile
+package ruleevaluator.rule
 
 import zio.stream.ZPipeline
 import zio.{Task, ZIO, stream}

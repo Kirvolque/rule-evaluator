@@ -4,7 +4,7 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import ruleevaluator.csv.CsvRow
 import ruleevaluator.exception.{CharacterNotFoundException, InvalidConditionException, MissingArgumentException, NoSuchFieldException}
-import ruleevaluator.rulesfile.{RuleLine, RulesFileContent}
+import ruleevaluator.rule.{RuleLine, RulesFileContent}
 
 class RuleEvaluatorTest extends AnyFunSuite with Matchers {
 

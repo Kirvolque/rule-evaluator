@@ -1,8 +1,8 @@
 package ruleevaluator.scanner
 
-import ruleevaluator.rulesfile.RuleLine
 import ruleevaluator.exception.{CharacterNotFoundException, UnexpectedCharacterException}
 import ruleevaluator.csv.CsvRow
+import ruleevaluator.rule.RuleLine
 import ruleevaluator.token.{Argument, BasicToken, ComparisonOperator, LogicalOperator, Token}
 import ruleevaluator.scanner.ExpressionSubstringExtractor
 import ruleevaluator.token.BasicToken.Whitespace
