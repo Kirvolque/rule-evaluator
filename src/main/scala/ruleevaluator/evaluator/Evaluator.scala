@@ -34,9 +34,9 @@ object Evaluator {
 
   private def convertToComputable(token: Token): Option[Computable] = {
     token match
-      case e: BasicToken.Expression => Some(() => Evaluator.evaluate(e.tokens))
-      case c: BasicToken.Condition => Some(() => c.rule.compute())
-      case _ => None
+      case BasicToken.Expression(tokens) => Some(() => Evaluator.evaluate(tokens))
+      case BasicToken.Condition(rule)    => Some(() => rule.compute())
+      case _                             => None
   }
 
 }

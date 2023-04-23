@@ -1,6 +1,7 @@
 package ruleevaluator.token
 
-import ruleevaluator.rule.Rule
+import ruleevaluator.result.Result
+import ruleevaluator.rule.{Computable, Rule}
 
 /**
  * A trait representing a token in a rule expression.
