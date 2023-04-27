@@ -1,9 +1,13 @@
 package ruleevaluator.combiner
 
+import cats.data.Validated
+import cats.data.Validated.{Invalid, Valid}
+import cats.implicits._
 import ruleevaluator.rule.Rule
-import ruleevaluator.exception.{InvalidConditionException, MissingArgumentException}
-import ruleevaluator.token.*
+import ruleevaluator.exception.InvalidRuleSyntaxException
+import ruleevaluator.token._
 import ruleevaluator.token.BasicToken.Expression
+import ruleevaluator.combiner.{TokenError, MissingArgument, InvalidCondition}
 
 /**
  * A TokenCombiner takes a list of tokens and combines them to form a list of conditions.
@@ -13,39 +17,39 @@ import ruleevaluator.token.BasicToken.Expression
  */
 class TokenCombiner(val tokens: List[Token], val line: Int) {
 
+
   /**
    * Combine the tokens to form a list of conditions.
    *
-   * @return A list of conditions
-   * @throws InvalidConditionException If an invalid condition is detected
-   * @throws MissingArgumentException  If an argument is missing for an operator
+   * @return A validated list of tokens representing the conditions
+   *         If the combination fails, a list of token errors is returned
    */
-  def combineTokensToConditions(): List[Token] =
-    ensureExpressionContainsMoreThanOneToken()
+  def combineTokensToConditions(): Validated[List[TokenError], List[Token]] =
     val tokenIterator = TokenIterator(tokens)
     tokenIterator.map {
-      case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => token
-      case TokenFrame(_, token: LogicalOperator, _) => throw MissingArgumentException(
-        s"Missing Argument(s) for operator: $token in line: $line.")
-      case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => BasicToken.Condition(Rule(c, a1, a2))
+      case TokenFrame(None, _: Argument, None) => Invalid(List(InvalidCondition(s"Invalid condition in line $line.")))
+      case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => Valid(token)
+      case TokenFrame(_, token: LogicalOperator, _) => Invalid(List(MissingArgument(
+        s"Missing Argument(s) for operator: $token in line: $line.")))
+      case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => Valid(BasicToken.Condition(Rule(c, a1, a2)))
       case tokenFrame@TokenFrame(_, _: Argument, _) => validateOrderOfTokens(tokenFrame)
       case TokenFrame(_, e: Expression, _) => simplify(e)
-      case tokenFrame => tokenFrame.currentToken
+      case tokenFrame => Valid(tokenFrame.currentToken)
     }
       .toList
-      .filterNot(token => token.isInstanceOf[Argument])
+      .filter {
+        case Valid(_: Argument) => false
+        case _ => true
+      }
+      .map(_.map(t => List(t)))
+      .reduce((x, y) => x.combine(y))
 
-  private def simplify(expression: BasicToken.Expression): BasicToken.Expression =
+
+  private def simplify(expression: BasicToken.Expression): Validated[List[TokenError], BasicToken.Expression] =
     val tokens = new TokenCombiner(expression.tokens, line).combineTokensToConditions()
-    BasicToken.Expression(tokens)
+    tokens.map(t => BasicToken.Expression(t))
 
-  private def ensureExpressionContainsMoreThanOneToken(): Unit =
-    if tokens.size == 1 && !tokens.head.isInstanceOf[BasicToken.Expression] then
-      throw InvalidConditionException(
-        s"Invalid condition in line $line."
-      )
-
-  private def validateOrderOfTokens(tokenFrame: TokenFrame): Token = {
+  private def validateOrderOfTokens(tokenFrame: TokenFrame): Validated[List[TokenError], Token] = {
     def isArgumentOrExpression(t: Token) = t.isInstanceOf[Argument | Expression]
 
     val orderIsInvalid =
@@ -53,9 +57,9 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
         tokenFrame.nextToken.exists(isArgumentOrExpression)
 
     if orderIsInvalid then
-      throw InvalidConditionException(s"Operator is missing in line $line.")
+      Invalid(List(InvalidCondition(s"Operator is missing in line $line.")))
     else
-      tokenFrame.currentToken
+      Valid(tokenFrame.currentToken)
   }
 
 }

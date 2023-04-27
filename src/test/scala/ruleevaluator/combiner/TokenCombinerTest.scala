@@ -2,7 +2,7 @@ package ruleevaluator.combiner
 
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
-import ruleevaluator.exception.{InvalidConditionException, MissingArgumentException}
+import ruleevaluator.exception
 import ruleevaluator.rule.Rule
 import ruleevaluator.token._
 
@@ -29,8 +29,9 @@ class TokenCombinerTest extends AnyFunSuite with Matchers {
 
     val combiner = new TokenCombiner(tokens, 1)
     val result = combiner.combineTokensToConditions()
+    result.isValid shouldBe true
 
-    result should contain theSameElementsInOrderAs List(
+    result.toList.flatten should contain theSameElementsInOrderAs List(
       BasicToken.Condition(Rule(ComparisonOperator.GreaterEqual, ageField, ageValue)),
       LogicalOperator.Or,
       BasicToken.Condition(Rule(ComparisonOperator.Less, anotherAgeField, anotherAgeValue))

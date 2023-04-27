@@ -3,7 +3,7 @@ package ruleevaluator
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.funsuite.AnyFunSuite
 import ruleevaluator.csv.CsvRow
-import ruleevaluator.exception.{CharacterNotFoundException, InvalidConditionException, MissingArgumentException, NoSuchFieldException}
+import ruleevaluator.exception.{CharacterNotFoundException, InvalidRuleSyntaxException, NoSuchFieldException}
 import ruleevaluator.rule.{RuleLine, RulesFileContent}
 
 class RuleEvaluatorTest extends AnyFunSuite with Matchers {
@@ -188,7 +188,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
       ("field2", "1")
     )
     val conditions = createConditions("[field1] [field2]")
-    assertThrows[InvalidConditionException] {
+    assertThrows[InvalidRuleSyntaxException] {
       RuleEvaluator.checkRules(conditions, csv)
     }
   }
@@ -200,7 +200,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     val conditions = createConditions(
       "[field1] = 1 OR"
     )
-    assertThrows[MissingArgumentException] {
+    assertThrows[InvalidRuleSyntaxException] {
       RuleEvaluator.checkRules(conditions, csv)
     }
   }
@@ -211,7 +211,7 @@ class RuleEvaluatorTest extends AnyFunSuite with Matchers {
     )
     val conditions1 = createConditions("[field1] 123")
 
-    assertThrows[InvalidConditionException] {
+    assertThrows[InvalidRuleSyntaxException] {
       RuleEvaluator.checkRules(conditions1, csv)
     }
   }

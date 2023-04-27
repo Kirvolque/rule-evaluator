@@ -1,12 +1,14 @@
 package ruleevaluator
 
+import cats.data.Validated.{Invalid, Valid}
 import ruleevaluator.evaluator.Evaluator
-import ruleevaluator.combiner.TokenCombiner
-import ruleevaluator.csv.{CsvRow, CsvFileParser}
-import ruleevaluator.result.ResultMonoid._
+import ruleevaluator.combiner.{TokenCombiner, TokenError}
+import ruleevaluator.csv.{CsvFileParser, CsvRow}
+import ruleevaluator.result.ResultMonoid.*
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
-import cats.implicits._
+import cats.implicits.*
+import ruleevaluator.exception.InvalidRuleSyntaxException
 import ruleevaluator.result.Result
 import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
 
@@ -34,6 +36,9 @@ object RuleEvaluator {
 
   private def parseAndCombineTokens(line: RuleLine, csv: CsvRow): List[Token] = {
     val tokens = new Scanner(line, csv).parseTokens()
-    new TokenCombiner(tokens, line.lineNumber).combineTokensToConditions()
+    new TokenCombiner(tokens, line.lineNumber).combineTokensToConditions() match {
+      case Valid(t) => t
+      case Invalid(e) => throw new InvalidRuleSyntaxException(e)
+    }
   }
 }
