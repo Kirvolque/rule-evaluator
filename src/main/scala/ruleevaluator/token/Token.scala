@@ -2,6 +2,7 @@ package ruleevaluator.token
 
 import ruleevaluator.result.Result
 import ruleevaluator.rule.{Computable, Rule}
+import ruleevaluator.token.Token.ConditionToken
 
 /**
  * A trait representing a token in a rule expression.
@@ -108,3 +109,9 @@ enum Argument extends Token:
    * @param value the value of the double argument
    */
   case DoubleArg(val value: Double)
+
+object Token {
+
+  type ConditionToken = BasicToken.Condition | BasicToken.Expression | LogicalOperator
+
+}

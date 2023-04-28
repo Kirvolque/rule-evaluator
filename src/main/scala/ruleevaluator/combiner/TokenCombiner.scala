@@ -2,12 +2,13 @@ package ruleevaluator.combiner
 
 import cats.data.Validated
 import cats.data.Validated.{Invalid, Valid}
-import cats.implicits._
+import cats.implicits.*
 import ruleevaluator.rule.Rule
 import ruleevaluator.exception.InvalidRuleSyntaxException
-import ruleevaluator.token._
+import ruleevaluator.token.*
 import ruleevaluator.token.BasicToken.Expression
-import ruleevaluator.combiner.{TokenError, MissingArgument, InvalidCondition}
+import ruleevaluator.combiner.{InvalidCondition, MissingArgument, TokenError}
+import ruleevaluator.token.Token.ConditionToken
 
 /**
  * A TokenCombiner takes a list of tokens and combines them to form a list of conditions.
@@ -24,7 +25,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
    * @return A validated list of tokens representing the conditions
    *         If the combination fails, a list of token errors is returned
    */
-  def combineTokensToConditions(): Validated[List[TokenError], List[Token]] =
+  def combineTokensToConditions(): Validated[List[TokenError], List[ConditionToken]] =
     val tokenIterator = TokenIterator(tokens)
     tokenIterator.map {
       case TokenFrame(None, _: Argument, None) => Invalid(List(InvalidCondition(s"Invalid condition in line $line.")))
@@ -37,11 +38,10 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
       case tokenFrame => Valid(tokenFrame.currentToken)
     }
       .toList
-      .filter {
-        case Valid(_: Argument) => false
-        case _ => true
+      .collect {
+        case Valid(ct: ConditionToken) => Valid(List(ct))
+        case i: Invalid[List[TokenError]] => i
       }
-      .map(_.map(t => List(t)))
       .reduce((x, y) => x.combine(y))
 
 
