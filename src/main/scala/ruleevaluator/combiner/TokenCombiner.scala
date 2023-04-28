@@ -27,14 +27,13 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
   def combineTokensToConditions(): Validated[List[TokenError], List[ConditionToken]] =
     val tokenIterator = TokenIterator(tokens)
     tokenIterator.map {
-      case TokenFrame(None, _: Argument, None) => Invalid(List(InvalidCondition(s"Invalid condition in line $line.")))
-      case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => Valid(token)
-      case TokenFrame(_, token: LogicalOperator, _) => Invalid(List(MissingArgument(
-        s"Missing Argument(s) for operator: $token in line: $line.")))
+      case TokenFrame(None, _: Argument, None)                                       => Invalid(List(InvalidCondition(line)))
+      case TokenFrame(Some(_), token: LogicalOperator, Some(_))                      => Valid(token)
+      case TokenFrame(_, token: LogicalOperator, _)                                  => Invalid(List(MissingArgument(token, line)))
       case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => Valid(Composite.Condition(Rule(c, a1, a2)))
-      case tokenFrame@TokenFrame(_, _: Argument, _) => validateOrderOfTokens(tokenFrame)
-      case TokenFrame(_, e: BasicToken.RawExpression, _) => constructExpression(e)
-      case tokenFrame => Valid(tokenFrame.currentToken)
+      case tokenFrame@TokenFrame(_, _: Argument, _)                                  => validateOrderOfTokens(tokenFrame)
+      case TokenFrame(_, e: BasicToken.RawExpression, _)                             => constructExpression(e)
+      case tokenFrame                                                                => Valid(tokenFrame.currentToken)
     }
       .toList
       .collect {
@@ -56,7 +55,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
         tokenFrame.nextToken.exists(isArgumentOrExpression)
 
     if orderIsInvalid then
-      Invalid(List(InvalidCondition(s"Operator is missing in line $line.")))
+      Invalid(List(InvalidCondition(line)))
     else
       Valid(tokenFrame.currentToken)
   }
