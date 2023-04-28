@@ -2,7 +2,7 @@ package ruleevaluator.token
 
 import ruleevaluator.result.Result
 import ruleevaluator.rule.{Computable, Rule}
-import ruleevaluator.token.Token.ConditionToken
+import ruleevaluator.token.Token.CombinedToken
 
 /**
  * A trait representing a token in a rule expression.
@@ -118,10 +118,13 @@ enum Composite extends Token:
    *
    * @param tokens the list of sub-tokens that make up the expression
    */
-  case Expression(val tokens: List[ConditionToken])
+  case Expression(val tokens: List[CombinedToken])
 
 object Token {
 
-  type ConditionToken = Composite.Condition | Composite.Expression | LogicalOperator
+  /**
+   * A type representing a token that combines multiple tokens into a more complex structure.
+   */
+  type CombinedToken = Composite | LogicalOperator
 
 }

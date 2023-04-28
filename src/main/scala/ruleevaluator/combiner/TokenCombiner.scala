@@ -7,7 +7,7 @@ import ruleevaluator.rule.Rule
 import ruleevaluator.exception.InvalidRuleSyntaxException
 import ruleevaluator.token._
 import ruleevaluator.combiner.{InvalidCondition, MissingArgument, TokenError}
-import ruleevaluator.token.Token.ConditionToken
+import ruleevaluator.token.Token.CombinedToken
 
 /**
  * A TokenCombiner takes a list of tokens and combines them to form a list of conditions.
@@ -24,7 +24,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
    * @return A validated list of tokens representing the conditions
    *         If the combination fails, a list of token errors is returned
    */
-  def combineTokensToConditions(): Validated[List[TokenError], List[ConditionToken]] =
+  def combineTokensToConditions(): Validated[List[TokenError], List[CombinedToken]] =
     val tokenIterator = TokenIterator(tokens)
     tokenIterator.map {
       case TokenFrame(None, _: Argument, None)                                       => Invalid(List(InvalidCondition(line)))
@@ -37,7 +37,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
     }
       .toList
       .collect {
-        case Valid(ct: ConditionToken) => Valid(List(ct))
+        case Valid(ct: CombinedToken) => Valid(List(ct))
         case i: Invalid[List[TokenError]] => i
       }
       .reduce((x, y) => x.combine(y))
