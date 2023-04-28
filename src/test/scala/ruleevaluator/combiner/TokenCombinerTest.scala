@@ -11,7 +11,7 @@ import ruleevaluator.token._
  */
 class TokenCombinerTest extends AnyFunSuite with Matchers {
 
-  test("combineTokensToConditions should return a list of tokens with conditions") {
+  test("combineTokens should return a list of tokens with conditions") {
     val ageField = Argument.CsvField("age", 30)
     val ageValue = Argument.DoubleArg(18.5)
     val anotherAgeField = Argument.CsvField("age", 60)
@@ -28,7 +28,7 @@ class TokenCombinerTest extends AnyFunSuite with Matchers {
     )
 
     val combiner = new TokenCombiner(tokens, 1)
-    val result = combiner.combineTokensToConditions()
+    val result = combiner.combineTokens()
     result.isValid shouldBe true
 
     result.toList.flatten should contain theSameElementsInOrderAs List(

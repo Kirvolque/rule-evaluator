@@ -24,7 +24,7 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
    * @return A validated list of tokens representing the conditions
    *         If the combination fails, a list of token errors is returned
    */
-  def combineTokensToConditions(): Validated[List[TokenError], List[CombinedToken]] =
+  def combineTokens(): Validated[List[TokenError], List[CombinedToken]] =
     val tokenIterator = TokenIterator(tokens)
     tokenIterator.map {
       case TokenFrame(None, _: Argument, None)                                       => Invalid(List(InvalidCondition(line)))
@@ -44,8 +44,9 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
 
 
   private def constructExpression(expression: BasicToken.RawExpression): Validated[List[TokenError], Composite.Expression] =
-    val tokens = new TokenCombiner(expression.tokens, line).combineTokensToConditions()
-    tokens.map(t => Composite.Expression(t))
+    TokenCombiner(expression.tokens, line)
+      .combineTokens()
+      .map(t => Composite.Expression(t))
 
   private def validateOrderOfTokens(tokenFrame: TokenFrame): Validated[List[TokenError], Token] = {
     def isArgumentOrExpression(t: Token) = t.isInstanceOf[Argument | BasicToken.RawExpression]
