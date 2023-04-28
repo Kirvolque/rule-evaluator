@@ -2,11 +2,10 @@ package ruleevaluator.combiner
 
 import cats.data.Validated
 import cats.data.Validated.{Invalid, Valid}
-import cats.implicits.*
+import cats.implicits._
 import ruleevaluator.rule.Rule
 import ruleevaluator.exception.InvalidRuleSyntaxException
-import ruleevaluator.token.*
-import ruleevaluator.token.BasicToken.Expression
+import ruleevaluator.token._
 import ruleevaluator.combiner.{InvalidCondition, MissingArgument, TokenError}
 import ruleevaluator.token.Token.ConditionToken
 
@@ -32,9 +31,9 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
       case TokenFrame(Some(_), token: LogicalOperator, Some(_)) => Valid(token)
       case TokenFrame(_, token: LogicalOperator, _) => Invalid(List(MissingArgument(
         s"Missing Argument(s) for operator: $token in line: $line.")))
-      case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => Valid(BasicToken.Condition(Rule(c, a1, a2)))
+      case TokenFrame(Some(a1: Argument), c: ComparisonOperator, Some(a2: Argument)) => Valid(Composite.Condition(Rule(c, a1, a2)))
       case tokenFrame@TokenFrame(_, _: Argument, _) => validateOrderOfTokens(tokenFrame)
-      case TokenFrame(_, e: Expression, _) => simplify(e)
+      case TokenFrame(_, e: BasicToken.RawExpression, _) => constructExpression(e)
       case tokenFrame => Valid(tokenFrame.currentToken)
     }
       .toList
@@ -45,12 +44,12 @@ class TokenCombiner(val tokens: List[Token], val line: Int) {
       .reduce((x, y) => x.combine(y))
 
 
-  private def simplify(expression: BasicToken.Expression): Validated[List[TokenError], BasicToken.Expression] =
+  private def constructExpression(expression: BasicToken.RawExpression): Validated[List[TokenError], Composite.Expression] =
     val tokens = new TokenCombiner(expression.tokens, line).combineTokensToConditions()
-    tokens.map(t => BasicToken.Expression(t))
+    tokens.map(t => Composite.Expression(t))
 
   private def validateOrderOfTokens(tokenFrame: TokenFrame): Validated[List[TokenError], Token] = {
-    def isArgumentOrExpression(t: Token) = t.isInstanceOf[Argument | Expression]
+    def isArgumentOrExpression(t: Token) = t.isInstanceOf[Argument | BasicToken.RawExpression]
 
     val orderIsInvalid =
       tokenFrame.previousToken.exists(isArgumentOrExpression) ||

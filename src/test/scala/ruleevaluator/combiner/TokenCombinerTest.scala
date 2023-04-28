@@ -32,9 +32,9 @@ class TokenCombinerTest extends AnyFunSuite with Matchers {
     result.isValid shouldBe true
 
     result.toList.flatten should contain theSameElementsInOrderAs List(
-      BasicToken.Condition(Rule(ComparisonOperator.GreaterEqual, ageField, ageValue)),
+      Composite.Condition(Rule(ComparisonOperator.GreaterEqual, ageField, ageValue)),
       LogicalOperator.Or,
-      BasicToken.Condition(Rule(ComparisonOperator.Less, anotherAgeField, anotherAgeValue))
+      Composite.Condition(Rule(ComparisonOperator.Less, anotherAgeField, anotherAgeValue))
     )
   }
 }

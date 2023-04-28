@@ -15,18 +15,10 @@ sealed trait Token
 enum BasicToken extends Token:
 
   /**
-   * An expression token consisting of a list of sub-tokens.
-   *
-   * @param tokens the list of sub-tokens that make up the expression
+   * A token representing a group of sub-tokens enclosed in brackets.
+   * @param tokens the list of sub-tokens that make up the expression inside the brackets
    */
-  case Expression(val tokens: List[Token])
-
-  /**
-   * A condition token representing a rule.
-   *
-   * @param rule the rule that the condition represents
-   */
-  case Condition(val rule: Rule)
+  case RawExpression(val tokens: List[Token])
 
   /**
    * A whitespace token.
@@ -110,8 +102,26 @@ enum Argument extends Token:
    */
   case DoubleArg(val value: Double)
 
+/**
+ * An enumeration of composite tokens that represent more complex structures in a rule expression.
+ */
+enum Composite extends Token:
+  /**
+   * A condition token representing a rule.
+   *
+   * @param rule the rule that the condition represents
+   */
+  case Condition(val rule: Rule)
+
+  /**
+   * An expression token consisting of a list of sub-tokens.
+   *
+   * @param tokens the list of sub-tokens that make up the expression
+   */
+  case Expression(val tokens: List[ConditionToken])
+
 object Token {
 
-  type ConditionToken = BasicToken.Condition | BasicToken.Expression | LogicalOperator
+  type ConditionToken = Composite.Condition | Composite.Expression | LogicalOperator
 
 }

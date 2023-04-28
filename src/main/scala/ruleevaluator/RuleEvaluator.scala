@@ -11,6 +11,7 @@ import cats.implicits.*
 import ruleevaluator.exception.InvalidRuleSyntaxException
 import ruleevaluator.result.Result
 import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
+import ruleevaluator.token.Token.ConditionToken
 
 /**
  * The `RuleEvaluator` object provides a function to check a set of conditions against a parsed CSV file using an `Evaluator`.
@@ -34,7 +35,7 @@ object RuleEvaluator {
       .map(Evaluator.evaluate)
       .combineAll(andResultMonoid)
 
-  private def parseAndCombineTokens(line: RuleLine, csv: CsvRow): List[Token] = {
+  private def parseAndCombineTokens(line: RuleLine, csv: CsvRow): List[ConditionToken] = {
     val tokens = new Scanner(line, csv).parseTokens()
     new TokenCombiner(tokens, line.lineNumber).combineTokensToConditions() match {
       case Valid(t) => t

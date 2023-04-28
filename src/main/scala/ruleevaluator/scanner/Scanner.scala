@@ -97,12 +97,12 @@ class Scanner(val source: String,
     token
   }
 
-  private def parseExpression: BasicToken.Expression = {
+  private def parseExpression: BasicToken.RawExpression = {
     val expressionReader = ExpressionSubstringExtractor(source, line)
     val expressionString = expressionReader.extractExpressionStringFrom(current - 1)
     current += expressionString.length + 1
     val scanner = new Scanner(expressionString, csv, line)
-    BasicToken.Expression(scanner.parseTokens())
+    BasicToken.RawExpression(scanner.parseTokens())
   }
 
   private def getCsvFieldValue: Argument.CsvField = {
