@@ -4,7 +4,7 @@ import cats.data.Validated.{Invalid, Valid}
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.{TokenCombiner, TokenError}
 import ruleevaluator.csv.{CsvFileParser, CsvRow}
-import ruleevaluator.result.ResultMonoid.*
+import ruleevaluator.result.ResultMonoid._
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
 import cats.implicits.*

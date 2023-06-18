@@ -8,7 +8,7 @@ import ruleevaluator.token.Token
  *
  * @param tokens a list of tokens to be iterated over
  */
-class TokenIterator(val tokens: List[Token]) extends Iterator[TokenFrame] {
+private[combiner] class TokenIterator(val tokens: List[Token]) extends Iterator[TokenFrame] {
 
   private var current = 0
 
