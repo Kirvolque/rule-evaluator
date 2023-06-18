@@ -37,7 +37,7 @@ object RuleEvaluator {
 
   private def parseAndCombineTokens(line: RuleLine, csv: CsvRow): List[CombinedToken] = {
     val tokens = new Scanner(line, csv).parseTokens()
-    new TokenCombiner(tokens, line.lineNumber).combineTokens() match {
+    TokenCombiner.combineTokens(tokens, line.lineNumber) match {
       case Valid(t) => t
       case Invalid(e) => throw new InvalidRuleSyntaxException(e)
     }

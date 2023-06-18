@@ -9,4 +9,4 @@ import ruleevaluator.token.Token
  * @param currentToken  the token in the middle of the frame
  * @param nextToken     an optional token that represents the token that appears after the current token
  */
-case class TokenFrame(previousToken: Option[Token], currentToken: Token, nextToken: Option[Token])
+private[combiner] case class TokenFrame(previousToken: Option[Token], currentToken: Token, nextToken: Option[Token])

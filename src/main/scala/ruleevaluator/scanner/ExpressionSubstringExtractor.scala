@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
  * @param source the source string to extract the expression from
  * @param line   the line number in the source string where the expression starts
  */
-class ExpressionSubstringExtractor(val source: String, val line: Int) {
+private[scanner] class ExpressionSubstringExtractor(val source: String, val line: Int) {
   private val punctuationMarks = collection.mutable.Stack[Char]()
   private var current = 0
 

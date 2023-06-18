@@ -27,8 +27,7 @@ class TokenCombinerTest extends AnyFunSuite with Matchers {
       anotherAgeValue
     )
 
-    val combiner = new TokenCombiner(tokens, 1)
-    val result = combiner.combineTokens()
+    val result = TokenCombiner.combineTokens(tokens, 1)
     result.isValid shouldBe true
 
     result.toList.flatten should contain theSameElementsInOrderAs List(
