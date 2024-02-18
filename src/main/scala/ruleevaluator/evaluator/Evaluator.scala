@@ -35,7 +35,7 @@ object Evaluator {
     token match
       case Composite.Expression(tokens) => Some(() => Evaluator.evaluate(tokens))
       case Composite.Condition(rule)    => Some(() => rule.compute())
-      case _                             => None
+      case _                            => None
   }
 
 }

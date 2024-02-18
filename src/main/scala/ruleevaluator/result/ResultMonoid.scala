@@ -6,9 +6,7 @@ import ruleevaluator.result.Result
 /**
  *
  * This object provides two monoids for the Result class, which can be used for combining the results of rules.
- * A monoid is an algebraic structure that consists of a set, an operation, and an identity element. 
- * In the case of the Result class, the operation is combining two Result objects, and the identity element is either 
- * a successful Result with no fail reasons, or an unsuccessful Result with no fail reasons.
+ * A monoid is an algebraic structure that consists of an associative binary operation and a neutral element.
  * The andResultMonoid combines two Result objects using a logical "AND" operation. 
  * If both results are successful, the combined result will also be successful. 
  * If either result is unsuccessful, the combined result will be unsuccessful, 
