@@ -1,7 +1,8 @@
 package ruleevaluator.rule
 
+import ruleevaluator.exception.ReadFileError
 import zio.stream.ZPipeline
-import zio.{Task, ZIO, stream}
+import zio.{Chunk, Task, ZIO, stream}
 
 /**
  * The `RulesFileParser` object provides functionality for parsing a rules file into a `RulesFileContent` object.
@@ -19,10 +20,17 @@ object RulesFileParser {
       .fromFileName(fileName)
       .via(ZPipeline.utf8Decode >>> ZPipeline.splitLines)
       .runCollect
-      .map(lines => {
-        val rules = lines.zipWithIndex.toList.map { (line, index) =>
-          new RuleLine(index + 1, line)
-        }
-        new RulesFileContent(rules)
-      })
+      .mapError {
+        case ex: java.io.FileNotFoundException => ReadFileError.FileNotFound(ex)
+        case ex: Throwable => ReadFileError.Other(ex)
+      }
+      .map(parseLines)
+
+  private def parseLines(lines: Chunk[String]): RulesFileContent = {
+    val rules = lines.zipWithIndex.toList.map { (line, index) =>
+      new RuleLine(index + 1, line)
+    }
+    new RulesFileContent(rules)
+  }
+
 }
