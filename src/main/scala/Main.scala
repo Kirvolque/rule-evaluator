@@ -60,22 +60,21 @@ object Main extends ZIOAppDefault {
     }
   }
 
-  /**
-   * Runs the RuleEvaluator program by parsing the rule file, parsing the CSV file, evaluating the rules against each
-   * row of the CSV file, and printing out the evaluation results for each row to the console.
-   *
-   * @param ruleFile The path to the rule file.
-   * @param csvFile  The path to the CSV file.
-   * @return A ZIO effect that represents the completion of the program.
-   */
   private def runApp(ruleFile: String, csvFile: String): ZIO[Any with Scope, Throwable, Unit] = {
-    RulesFileParser.parse(ruleFile)
-      .map(parsedRules => {
-        CsvFileParser.parse(csvFile)
-          .map(csv => RuleEvaluator.checkRules(parsedRules, csv))
-          .zipWithIndex
-          .map((result, index) => s"row: ${index + 1} status: $result")
-          .foreach(resultString => Console.printLine(resultString))
-      }).flatten
+    for {
+      parsedRules <- RulesFileParser.parse(ruleFile)
+      _ <- CsvFileParser
+        .parse(csvFile)
+        .zipWithIndex
+        .mapZIO { case (csvRow, index) =>
+          RuleEvaluator.checkRules(parsedRules, csvRow) match {
+            case Right(result) =>
+              ZIO.succeed(s"row: ${index + 1} status: $result")
+            case Left(error) =>
+              ZIO.succeed(s"row: ${index + 1} error: ${error.getMessage}")
+          }
+        }
+        .foreach(resultString => Console.printLine(resultString))
+    } yield ()
   }
 }
