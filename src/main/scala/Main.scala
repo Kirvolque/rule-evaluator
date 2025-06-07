@@ -2,12 +2,12 @@ import ruleevaluator.RuleEvaluator
 import ruleevaluator.csv.{CsvConstants, CsvFileParser, CsvRow}
 import ruleevaluator.evaluator.Evaluator
 import ruleevaluator.combiner.TokenCombiner
+import ruleevaluator.output.Output
 import ruleevaluator.result.Result
 import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
 import scopt.OptionParser
+import zio.{ExitCode, Scope, ZIO, ZIOAppArgs, ZIOAppDefault}
 import zio.stream.ZStream
-import zio.{Console, ZIO, ZIOApp}
-import zio._
 
 import scala.io.Source
 import scala.util.Using
@@ -29,9 +29,11 @@ object Main extends ZIOAppDefault {
 
   override def run: ZIO[Any with ZIOAppArgs with Scope, Throwable, ExitCode] =
     (for {
-    config <- ZIOAppArgs.getArgs.map(_.toList).map(a => parseConfig(a))
-    _      <- runApp(config.ruleFile, config.csvFile)
-  } yield ()).exitCode
+      config <- ZIOAppArgs.getArgs.map(_.toList).map(parseConfig)
+      _ <- runApp(config.ruleFile, config.csvFile)
+    } yield ())
+      .provideSome[ZIOAppArgs with Scope](Output.console)
+      .exitCode
 
 
   /**
@@ -60,21 +62,22 @@ object Main extends ZIOAppDefault {
     }
   }
 
-  private def runApp(ruleFile: String, csvFile: String): ZIO[Any with Scope, Throwable, Unit] = {
+  private def runApp(ruleFile: String, csvFile: String): ZIO[Output with Scope, Throwable, Unit] = {
     for {
       parsedRules <- RulesFileParser.parse(ruleFile)
       _ <- CsvFileParser
         .parse(csvFile)
         .zipWithIndex
         .mapZIO { case (csvRow, index) =>
-          RuleEvaluator.checkRules(parsedRules, csvRow) match {
+          val resultString = RuleEvaluator.checkRules(parsedRules, csvRow) match {
             case Right(result) =>
-              ZIO.succeed(s"row: ${index + 1} status: $result")
+              s"row: ${index + 1} status: $result"
             case Left(error) =>
-              ZIO.succeed(s"row: ${index + 1} error: ${error.getMessage}")
+              s"row: ${index + 1} error: ${error.getMessage}"
           }
+          ZIO.serviceWith[Output](_.printLine(resultString))
         }
-        .foreach(resultString => Console.printLine(resultString))
+        .runDrain
     } yield ()
   }
 }
