@@ -7,9 +7,9 @@ import ruleevaluator.csv.{CsvFileParser, CsvRow}
 import ruleevaluator.result.ResultMonoid._
 import ruleevaluator.scanner.Scanner
 import ruleevaluator.token.Token
-import cats.implicits.*
+import cats.implicits._
 import ruleevaluator.exception.InvalidRuleSyntaxException
-import ruleevaluator.result.Result
+import ruleevaluator.result.{Result, ResultMonoid}
 import ruleevaluator.rule.{RuleLine, RulesFileContent, RulesFileParser}
 import ruleevaluator.token.Token.CombinedToken
 
@@ -29,11 +29,11 @@ object RuleEvaluator {
    * @param parsedCsv  the `CsvRow` object containing the parsed contents of the CSV file
    * @return a `Result` object containing the evaluation status for each row in the CSV file
    */
-  def checkRules(conditions: RulesFileContent, parsedCsv: CsvRow): Result =
+  def checkRules(conditions: RulesFileContent, parsedCsv: CsvRow)(implicit andMonoid: ResultMonoid.AndMonoid): Result =
     conditions.lines
       .map(line => parseAndCombineTokens(line, parsedCsv))
       .map(Evaluator.evaluate)
-      .combineAll(andResultMonoid)
+      .combineAll(andMonoid)
 
   private def parseAndCombineTokens(line: RuleLine, csv: CsvRow): List[CombinedToken] = {
     val tokens = new Scanner(line, csv).parseTokens()

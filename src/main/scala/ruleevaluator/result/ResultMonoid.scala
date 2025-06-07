@@ -17,23 +17,32 @@ import ruleevaluator.result.Result
  *
  * @see [[cats.Monoid]]
  */
+
+sealed trait ResultMonoid extends Monoid[Result]
+
 object ResultMonoid {
-  implicit val andResultMonoid: Monoid[Result] = new Monoid[Result] {
+
+  final class AndMonoid extends ResultMonoid {
     def empty: Result = Result.PASS
 
-    def combine(x: Result, y: Result): Result =
+    def combine(x: Result, y: Result): Result = {
       val mergedFailReasons = x.failReasons.union(y.failReasons)
       Result(x.successful && y.successful, mergedFailReasons)
+    }
   }
 
-  implicit val orResultMonoid: Monoid[Result] = new Monoid[Result] {
+  final class OrMonoid extends ResultMonoid {
     def empty: Result = Result.FAIL
 
-    def combine(x: Result, y: Result): Result =
+    def combine(x: Result, y: Result): Result = {
       val mergedResultIsSuccessful = x.successful || y.successful
       val mergedFailReasons =
         if (mergedResultIsSuccessful) Set.empty[String]
         else x.failReasons.union(y.failReasons)
       Result(mergedResultIsSuccessful, mergedFailReasons)
+    }
   }
+
+  implicit val andResultMonoid: AndMonoid = new AndMonoid
+  implicit val orResultMonoid: OrMonoid = new OrMonoid
 }

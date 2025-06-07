@@ -3,7 +3,7 @@ package ruleevaluator.evaluator
 import ruleevaluator.rule.Computable
 import ruleevaluator.result.ResultMonoid._
 import ruleevaluator.token._
-import ruleevaluator.result.Result
+import ruleevaluator.result.{Result, ResultMonoid}
 import ruleevaluator.token.Token.CombinedToken
 import ruleevaluator.util.Util
 import cats.implicits._
@@ -20,16 +20,16 @@ object Evaluator {
    * @param tokens The list of tokens representing the rules to be evaluated.
    * @return The `Result` of the evaluation of the given rules.
    */
-  def evaluate(tokens: List[CombinedToken]): Result =
+  def evaluate(tokens: List[CombinedToken])(implicit andMonoid: ResultMonoid.AndMonoid, orMonoid: ResultMonoid.OrMonoid): Result =
     Util.splitBy[CombinedToken](tokens, token => token.isInstanceOf[LogicalOperator.Or.type])
       .map(list =>
         Util.splitBy(list, token => token.isInstanceOf[LogicalOperator.And.type])
           .flatten
           .flatMap(convertToComputable)
           .map(_.compute())
-          .combineAll(andResultMonoid)
+          .combineAll(andMonoid)
       )
-      .combineAll(orResultMonoid)
+      .combineAll(orMonoid)
 
   private def convertToComputable(token: Token): Option[Computable] = {
     token match
