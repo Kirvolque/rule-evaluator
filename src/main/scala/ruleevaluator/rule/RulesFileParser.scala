@@ -15,7 +15,7 @@ object RulesFileParser {
    * @param fileName the name of the rules file to parse
    * @return a `Task` that will produce the corresponding `RulesFileContent`
    */
-  def parse(fileName: String): ZIO[Any, Throwable, RulesFileContent] =
+  def parse(fileName: String): ZIO[Any, ReadFileError, RulesFileContent] =
     stream.ZStream
       .fromFileName(fileName)
       .via(ZPipeline.utf8Decode >>> ZPipeline.splitLines)
